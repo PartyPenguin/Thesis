@@ -1,0 +1,1 @@
+git+https://github.com/haosulab/ManiSkill@v0.5.3
