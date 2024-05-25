@@ -245,8 +245,8 @@ class Policy(nn.Module):
 class GCNPolicy(nn.Module):
     def __init__(self, obs_dims, act_dims):
         super().__init__()
-        self.conv1 = GCNConv(obs_dims, 32)
-        self.conv3 = GCNConv(32, act_dims)
+        self.conv1 = GCNConv(obs_dims, 16)
+        self.conv3 = GCNConv(16, act_dims)
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
@@ -335,7 +335,7 @@ def load_data(path):
     dataloader = GeometricDataLoader(
         dataset,
         batch_size=256,
-        num_workers=4,
+        num_workers=64,
         pin_memory=True,
         drop_last=True,
         shuffle=True,

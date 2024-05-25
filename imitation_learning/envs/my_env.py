@@ -37,12 +37,12 @@ class MyEnv(StationaryManipulationEnv):
         # Generate a random quaternion
         random_quaternion = random_quaternion()
 
-        goal_x = self._episode_rng.uniform(0.2, 0.6)
+        goal_x = self._episode_rng.uniform(0.2, 0.4)
         goal_y = self._episode_rng.uniform(-0.2, 0.2)
         goal_z = self._episode_rng.uniform(0, 0.5)
         self.goal_pos = np.hstack([goal_x, goal_y, goal_z])
 
-        self.goal_site.set_pose(Pose(self.goal_pos, np.roll(random_quaternion, 1)))
+        self.goal_site.set_pose(Pose(self.goal_pos, [0,1,0,0]))
 
     def _initialize_agent(self):
         super()._initialize_agent()

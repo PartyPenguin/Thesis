@@ -9,10 +9,12 @@ from mani_skill2.utils.wrappers import RecordEpisode
 from aggregate_dataset import merge_hdf5_files, merge_json_files_into_file_a
 import multiprocessing
 
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+os.environ['DISPLAY'] = ':0'
 
 def run_trajectory_process(process_id, max_trajectories, output_dir):
     num_trajectories = 0
-    vis = True
+    vis = False
     env = gym.make(
         "MyEnv-v0", obs_mode="state", control_mode="pd_joint_vel", render_mode="human"
     )
@@ -54,7 +56,7 @@ def run_trajectory_process(process_id, max_trajectories, output_dir):
 
 def main():
     max_trajectories = 20000
-    num_processes = 1
+    num_processes = 50
     trajectories_per_process = max_trajectories // num_processes
     output_dir = "trajectories_output"
     os.makedirs(output_dir, exist_ok=True)
