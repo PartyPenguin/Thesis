@@ -12,79 +12,7 @@
   "episodes": [
     {
       "episode_id": 0,
-      "episode_seed": 3790341340,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 131,
-      "info": {
-        "elapsed_steps": 131,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 1,
-      "episode_seed": 2143436973,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 97,
-      "info": {
-        "elapsed_steps": 97,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 2,
-      "episode_seed": 1096548337,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 68,
-      "info": {
-        "elapsed_steps": 68,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 3,
-      "episode_seed": 214636784,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 116,
-      "info": {
-        "elapsed_steps": 116,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 4,
-      "episode_seed": 768078775,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 84,
-      "info": {
-        "elapsed_steps": 84,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 5,
-      "episode_seed": 2091597848,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 122,
-      "info": {
-        "elapsed_steps": 122,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 6,
-      "episode_seed": 3968792347,
+      "episode_seed": 2204209776,
       "reset_kwargs": {},
       "control_mode": "pd_joint_vel",
       "elapsed_steps": 99,
@@ -95,32 +23,8 @@
       }
     },
     {
-      "episode_id": 7,
-      "episode_seed": 3852427275,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 88,
-      "info": {
-        "elapsed_steps": 88,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 8,
-      "episode_seed": 1295397323,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 92,
-      "info": {
-        "elapsed_steps": 92,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 9,
-      "episode_seed": 3580197030,
+      "episode_id": 1,
+      "episode_seed": 1096548337,
       "reset_kwargs": {},
       "control_mode": "pd_joint_vel",
       "elapsed_steps": 116,
@@ -131,92 +35,128 @@
       }
     },
     {
-      "episode_id": 10,
-      "episode_seed": 1408453469,
+      "episode_id": 2,
+      "episode_seed": 768078775,
       "reset_kwargs": {},
       "control_mode": "pd_joint_vel",
-      "elapsed_steps": 113,
+      "elapsed_steps": 61,
       "info": {
-        "elapsed_steps": 113,
+        "elapsed_steps": 61,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 3,
+      "episode_seed": 2943803224,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_vel",
+      "elapsed_steps": 93,
+      "info": {
+        "elapsed_steps": 93,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 4,
+      "episode_seed": 228722706,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_vel",
+      "elapsed_steps": 124,
+      "info": {
+        "elapsed_steps": 124,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 5,
+      "episode_seed": 2091597848,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_vel",
+      "elapsed_steps": 55,
+      "info": {
+        "elapsed_steps": 55,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 6,
+      "episode_seed": 3855408437,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_vel",
+      "elapsed_steps": 129,
+      "info": {
+        "elapsed_steps": 129,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 7,
+      "episode_seed": 3968792347,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_vel",
+      "elapsed_steps": 82,
+      "info": {
+        "elapsed_steps": 82,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 8,
+      "episode_seed": 3852427275,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_vel",
+      "elapsed_steps": 69,
+      "info": {
+        "elapsed_steps": 69,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 9,
+      "episode_seed": 1893189779,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_vel",
+      "elapsed_steps": 71,
+      "info": {
+        "elapsed_steps": 71,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 10,
+      "episode_seed": 3323982686,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_vel",
+      "elapsed_steps": 110,
+      "info": {
+        "elapsed_steps": 110,
         "is_target_reached": true,
         "success": true
       }
     },
     {
       "episode_id": 11,
-      "episode_seed": 1580738832,
+      "episode_seed": 1295397323,
       "reset_kwargs": {},
       "control_mode": "pd_joint_vel",
-      "elapsed_steps": 101,
+      "elapsed_steps": 59,
       "info": {
-        "elapsed_steps": 101,
+        "elapsed_steps": 59,
         "is_target_reached": true,
         "success": true
       }
     },
     {
       "episode_id": 12,
-      "episode_seed": 2125311450,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 90,
-      "info": {
-        "elapsed_steps": 90,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 13,
-      "episode_seed": 1346930785,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 81,
-      "info": {
-        "elapsed_steps": 81,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 14,
-      "episode_seed": 2660428674,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 117,
-      "info": {
-        "elapsed_steps": 117,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 15,
-      "episode_seed": 414176919,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 92,
-      "info": {
-        "elapsed_steps": 92,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 16,
-      "episode_seed": 2510907365,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 105,
-      "info": {
-        "elapsed_steps": 105,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 17,
-      "episode_seed": 4175997783,
+      "episode_seed": 3554377776,
       "reset_kwargs": {},
       "control_mode": "pd_joint_vel",
       "elapsed_steps": 108,
@@ -227,61 +167,49 @@
       }
     },
     {
-      "episode_id": 18,
-      "episode_seed": 3669091749,
+      "episode_id": 13,
+      "episode_seed": 4134379667,
       "reset_kwargs": {},
       "control_mode": "pd_joint_vel",
-      "elapsed_steps": 134,
+      "elapsed_steps": 61,
       "info": {
-        "elapsed_steps": 134,
+        "elapsed_steps": 61,
         "is_target_reached": true,
         "success": true
       }
     },
     {
-      "episode_id": 19,
-      "episode_seed": 1282800884,
+      "episode_id": 14,
+      "episode_seed": 3777289032,
       "reset_kwargs": {},
       "control_mode": "pd_joint_vel",
-      "elapsed_steps": 80,
+      "elapsed_steps": 82,
       "info": {
-        "elapsed_steps": 80,
+        "elapsed_steps": 82,
         "is_target_reached": true,
         "success": true
       }
     },
     {
-      "episode_id": 20,
-      "episode_seed": 3799769466,
+      "episode_id": 15,
+      "episode_seed": 4110474126,
       "reset_kwargs": {},
       "control_mode": "pd_joint_vel",
-      "elapsed_steps": 89,
+      "elapsed_steps": 95,
       "info": {
-        "elapsed_steps": 89,
+        "elapsed_steps": 95,
         "is_target_reached": true,
         "success": true
       }
     },
     {
-      "episode_id": 21,
-      "episode_seed": 80160122,
+      "episode_id": 16,
+      "episode_seed": 1408453469,
       "reset_kwargs": {},
       "control_mode": "pd_joint_vel",
-      "elapsed_steps": 136,
+      "elapsed_steps": 68,
       "info": {
-        "elapsed_steps": 136,
-        "is_target_reached": true,
-        "success": true
-      }
-    },
-    {
-      "episode_id": 22,
-      "episode_seed": 1773772890,
-      "reset_kwargs": {},
-      "control_mode": "pd_joint_vel",
-      "elapsed_steps": 101,
-      "info": {
-        "elapsed_steps": 101,
+        "elapsed_steps": 68,
         "is_target_reached": true,
         "success": true
       }
