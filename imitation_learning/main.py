@@ -245,8 +245,8 @@ class Policy(nn.Module):
 class GCNPolicy(nn.Module):
     def __init__(self, obs_dims, act_dims):
         super().__init__()
-        self.conv1 = GCNConv(obs_dims, 16)
-        self.conv3 = GCNConv(16, act_dims)
+        self.conv1 = GCNConv(obs_dims, 32)
+        self.conv3 = GCNConv(32, act_dims)
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
@@ -334,8 +334,8 @@ def load_data(path):
     dataset = GeometricManiSkill2Dataset(path, root="")
     dataloader = GeometricDataLoader(
         dataset,
-        batch_size=256,
-        num_workers=64,
+        batch_size=128,
+        num_workers=32,
         pin_memory=True,
         drop_last=True,
         shuffle=True,
@@ -476,7 +476,7 @@ def main():
 
     if not args.eval:
         writer = SummaryWriter(log_dir)
-        optim = th.optim.Adam(policy.parameters(), lr=1e-3, weight_decay=1e-4)
+        optim = th.optim.Adam(policy.parameters(), lr=1e-3)
         best_epoch_loss = np.inf
         epoch = 0
         steps = 0
@@ -512,7 +512,7 @@ def main():
             if epoch_loss < best_epoch_loss:
                 best_epoch_loss = epoch_loss
                 save_model(policy, osp.join(ckpt_dir, "ckpt_best.pt"))
-            if epoch % 10 == 0:
+            if epoch % 100 == 0:
                 print("Evaluating")
                 success_rate = evaluate_policy(env, policy)
                 writer.add_scalar("test/success_rate", success_rate, epoch)

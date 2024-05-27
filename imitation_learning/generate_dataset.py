@@ -55,8 +55,8 @@ def run_trajectory_process(process_id, max_trajectories, output_dir):
 
 
 def main():
-    max_trajectories = 20000
-    num_processes = 50
+    max_trajectories = 6000
+    num_processes = 30
     trajectories_per_process = max_trajectories // num_processes
     output_dir = "trajectories_output"
     os.makedirs(output_dir, exist_ok=True)
