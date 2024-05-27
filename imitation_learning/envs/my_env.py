@@ -13,7 +13,7 @@ class MyEnv(StationaryManipulationEnv):
     goal_thresh = 0.025
 
     def __init__(self, **kwargs):
-        super().__init__(robot_init_qpos_noise=0.3, **kwargs)
+        super().__init__(robot_init_qpos_noise=0.1, **kwargs)
 
     def _load_actors(self):
         # self._add_ground(render=self.bg_name is None)

@@ -334,8 +334,8 @@ def load_data(path):
     dataset = GeometricManiSkill2Dataset(path, root="")
     dataloader = GeometricDataLoader(
         dataset,
-        batch_size=64,
-        num_workers=32,
+        batch_size=512,
+        num_workers=24,
         pin_memory=True,
         drop_last=True,
         shuffle=True,
