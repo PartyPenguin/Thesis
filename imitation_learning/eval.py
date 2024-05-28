@@ -4,7 +4,7 @@ from envs.my_env import MyEnv
 import torch as th
 import numpy as np
 from main import GCNPolicy
-from main import build_hetero_graph
+from main import build_graph
 from mani_skill2.utils.wrappers import RecordEpisode
 import os.path as osp
 
@@ -29,7 +29,7 @@ policy = th.load(model_path).to(device)
 
 step = 0
 while step < 2000:
-    graph = build_hetero_graph(th.from_numpy(obs).float(), th.zeros(8)).to(device)
+    graph = build_graph(th.from_numpy(obs).float(), th.zeros(8)).to(device)
     action = policy(graph).squeeze().detach().cpu().numpy()
     obs, reward, terminated, truncated, info = env.step(action)
     env.render()  # a display is required to render

@@ -17,6 +17,7 @@ from torch_geometric.nn import GCNConv, RGCNConv, GATConv, SAGEConv, Linear
 from torch_geometric.nn import global_mean_pool
 from torch_geometric.nn import to_hetero
 from torch_geometric.nn import MeanAggregation
+from torch_geometric.utils import to_networkx
 import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
@@ -71,11 +72,21 @@ def build_graph(obs, action):
     edge_index = []
     for i in range(x.shape[0] - 1):
         edge_index.append([i, i + 1])
+
+    # Add Skip connections between joint 2 and join 7 and joint 3 and joint 6
+    edge_index.append([1, 6])
+    edge_index.append([2, 5])
     edge_index = th.tensor(edge_index, dtype=th.long).t().contiguous()
     # Make graph undirected
     edge_index = th.cat([edge_index, edge_index[[1, 0]]], dim=-1)
 
     data = Data(x=x, y=action.unsqueeze(0), edge_index=edge_index)
+    # import networkx as nx
+    # import matplotlib.pyplot as plt
+
+    # g = to_networkx(data)
+    # nx.draw(g)
+    # plt.show()
     return data
 
 
@@ -131,7 +142,6 @@ def build_hetero_graph(obs, action):
     return data
 
 
-
 class GeometricManiSkill2Dataset(GeometricDataset):
     def __init__(
         self, dataset_file: str, root, load_count=-1, transform=None, pre_transform=None
@@ -179,7 +189,6 @@ class GeometricManiSkill2Dataset(GeometricDataset):
         self.data.close()
 
 
-
 class GCNPolicy(nn.Module):
     def __init__(self, obs_dims, act_dims):
         super().__init__()
@@ -195,7 +204,7 @@ class GCNPolicy(nn.Module):
         x = global_mean_pool(x, data.batch)
 
         return x
-    
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -288,7 +297,6 @@ def main():
     # a short save function to save our model
     def save_model(policy, path):
         th.save(policy, path)
-
 
     def train_step(policy, data, optim, loss_fn):
         optim.zero_grad()
