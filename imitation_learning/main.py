@@ -194,14 +194,14 @@ class GCNPolicy(nn.Module):
         super().__init__()
         self.conv1 = GCNConv(obs_dims, 128)
         self.dropout = nn.Dropout(0.5)
-        self.conv2 = GCNConv(128,128)
+        self.conv2 = GCNConv(128, 128)
         self.conv3 = GCNConv(128, act_dims)
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
         x = self.conv1(x, edge_index)
         x = x.relu()
-        #x = self.dropout(x)
+        # x = self.dropout(x)
         x = self.conv2(x, edge_index)
         x = x.relu()
         x = self.conv3(x, edge_index)
@@ -272,7 +272,7 @@ def main():
     Path(ckpt_dir).mkdir(parents=True, exist_ok=True)
 
     obs_mode = "state"
-    control_mode = "pd_joint_vel"
+    control_mode = "pd_joint_pos"
     env = gym.make(
         env_id,
         obs_mode=obs_mode,

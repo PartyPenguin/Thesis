@@ -12,7 +12,7 @@ log_dir = "logs/eval"
 env = gym.make(
     "MyEnv-v0",
     obs_mode="state",
-    control_mode="pd_joint_vel",
+    control_mode="pd_joint_pos",
     render_mode="human",
 )
 # env = RecordEpisode(env, output_dir=osp.join(log_dir, "videos"), info_on_video=True)

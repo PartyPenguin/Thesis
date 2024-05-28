@@ -9,14 +9,18 @@ from mani_skill2.utils.wrappers import RecordEpisode
 from aggregate_dataset import merge_hdf5_files, merge_json_files_into_file_a
 import multiprocessing
 
-os.environ['OPENBLAS_NUM_THREADS'] = '1'
-os.environ['DISPLAY'] = ':0'
+# os.environ["OPENBLAS_NUM_THREADS"] = "1"
+# os.environ["DISPLAY"] = ":0"
+
 
 def run_trajectory_process(process_id, max_trajectories, output_dir):
     num_trajectories = 0
-    vis = False
+    vis = True
     env = gym.make(
-        "MyEnv-v0", obs_mode="state", control_mode="pd_joint_vel", render_mode="human"
+        "MyEnv-v0",
+        obs_mode="state",
+        control_mode="pd_joint_pos",
+        render_mode="human",
     )
     env = RecordEpisode(
         env=env,
@@ -35,12 +39,20 @@ def run_trajectory_process(process_id, max_trajectories, output_dir):
         plan = mp.move_to_pose_with_screw(env.unwrapped.goal_site.pose)
         if plan["status"] != "success":
             continue
-        n = len(plan["velocity"])
+        n = len(plan["position"])
+
+        delta_actions = np.diff(plan["position"], axis=0)
+        # delta_actions = normalize_deltas(delta_actions)
 
         for i in range(n):
-            q_vel_limits = mp.planner.joint_vel_limits
-            q_vel = plan["velocity"][i]
-            action = np.hstack([q_vel, 0.1])
+            # Velocity control
+            # q_vel_limits = mp.planner.joint_vel_limits
+            # q_vel = plan["velocity"][i]
+            # action = np.hstack([q_vel, 0.1])
+
+            # Position control
+            q_pos = plan["position"][i]
+            action = np.hstack([q_pos, 1])
 
             obs, reward, done, truncated, info = env.step(action)
 
@@ -56,7 +68,7 @@ def run_trajectory_process(process_id, max_trajectories, output_dir):
 
 def main():
     max_trajectories = 20000
-    num_processes = 25
+    num_processes = 1
     trajectories_per_process = max_trajectories // num_processes
     output_dir = "trajectories_output"
     os.makedirs(output_dir, exist_ok=True)
