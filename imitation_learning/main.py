@@ -131,46 +131,6 @@ def build_hetero_graph(obs, action):
     return data
 
 
-class ManiSkill2Dataset(Dataset):
-    def __init__(self, dataset_file: str, load_count=-1) -> None:
-        self.dataset_file = dataset_file
-        # for details on how the code below works, see the
-        # quick start tutorial
-        import h5py
-        from mani_skill2.utils.io_utils import load_json
-
-        self.data = h5py.File(dataset_file, "r")
-        json_path = dataset_file.replace(".h5", ".json")
-        self.json_data = load_json(json_path)
-        self.episodes = self.json_data["episodes"]
-        self.env_info = self.json_data["env_info"]
-        self.env_id = self.env_info["env_id"]
-        self.env_kwargs = self.env_info["env_kwargs"]
-
-        self.observations = []
-        self.actions = []
-        self.total_frames = 0
-        if load_count == -1:
-            load_count = len(self.episodes)
-        for eps_id in tqdm(range(load_count)):
-            eps = self.episodes[eps_id]
-            trajectory = self.data[f"traj_{eps['episode_id']}"]
-            trajectory = load_h5_data(trajectory)
-            # we use :-1 here to ignore the last observation as that
-            # is the terminal observation which has no actions
-            self.observations.append(trajectory["obs"][:-1])
-            self.actions.append(trajectory["actions"])
-        self.observations = np.vstack(self.observations)
-        self.actions = np.vstack(self.actions)
-
-    def __len__(self):
-        return len(self.observations)
-
-    def __getitem__(self, idx):
-        action = th.from_numpy(self.actions[idx]).float()
-        obs = th.from_numpy(self.observations[idx]).float()
-        return obs, action
-
 
 class GeometricManiSkill2Dataset(GeometricDataset):
     def __init__(
@@ -213,33 +173,11 @@ class GeometricManiSkill2Dataset(GeometricDataset):
     def get(self, idx):
         obs = th.from_numpy(self.observations[idx]).float()
         action = th.from_numpy(self.actions[idx]).float()
-        return build_hetero_graph(obs, action)
+        return build_graph(obs, action)
 
     def close(self):
         self.data.close()
 
-
-class Policy(nn.Module):
-    def __init__(
-        self,
-        obs_dims,
-        act_dims,
-        hidden_units=[256, 256, 256],
-        activation=nn.ReLU,
-    ):
-        super().__init__()
-        mlp_layers = []
-        prev_units = obs_dims
-        for h in hidden_units:
-            mlp_layers += [nn.Linear(prev_units, h), activation()]
-            prev_units = h
-        # mlp_layers += [nn.Linear(prev_units, act_dims)]
-        # attach a tanh regression head since we know all actions are constrained to [-1, 1]
-        mlp_layers += [nn.Linear(prev_units, act_dims), nn.Tanh()]
-        self.mlp = nn.Sequential(*mlp_layers)
-
-    def forward(self, observations) -> th.Tensor:
-        return self.mlp(observations)
 
 
 class GCNPolicy(nn.Module):
@@ -257,46 +195,7 @@ class GCNPolicy(nn.Module):
         x = global_mean_pool(x, data.batch)
 
         return x
-
-
-class GraphLevelGNN(th.nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv = GATConv((-1, -1), 32, add_self_loops=False)
-        self.pool = MeanAggregation()
-        self.lin = Linear(-1, 8)
-
-    def forward(
-        self, x: th.Tensor, edge_index: th.Tensor, batch: th.Tensor
-    ) -> th.Tensor:
-        x = self.conv(x, edge_index)
-        x = self.pool(x, batch)
-        x = self.lin(x)
-        return x
-
-
-class RGCNPolicy(nn.Module):
-    def __init__(
-        self,
-        obs_dims,
-        act_dims,
-        hidden_units=[256, 256, 256],
-        activation=nn.ReLU,
-    ):
-        super().__init__()
-        self.conv1 = RGCNConv(obs_dims, 64, num_relations=2)
-        self.conv3 = RGCNConv(64, 8, num_relations=2)
-
-    def forward(self, data):
-        x, edge_index = data.x, data.edge_index
-        x = self.conv1(x, edge_index)
-        x = x.relu()
-        x = self.conv3(x, edge_index)
-        x = x.tanh()
-
-        x = global_mean_pool(x, data.batch)
-        return x
-
+    
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -386,39 +285,10 @@ def main():
 
     loss_fn = nn.HuberLoss()
 
-    @th.no_grad()
-    def init_params():
-        batch = next(iter(dataloader))
-        batch = batch.to(device)
-        policy(batch.x_dict, batch.edge_index_dict, batch.batch_dict)
-
     # a short save function to save our model
     def save_model(policy, path):
         th.save(policy, path)
 
-    def get_ee_pos(q) -> th.Tensor:
-
-        chain = pk.build_serial_chain_from_urdf(
-            open("assets/descriptions/panda_v2.urdf").read(),
-            end_link_name="panda_hand_tcp",
-        )
-        chain = chain.to(dtype=th.float32, device=device)
-
-        ee = th.zeros(
-            (q.shape[0], 3)
-        )  # Initialize an array to store end-effector positions
-
-        ret = chain.forward_kinematics(q.squeeze())
-        ee = ret.get_matrix()[:, :3, 3]
-
-        return ee
-
-    def print_gradients(model):
-        for name, param in model.named_parameters():
-            if param.grad is not None:
-                print(f"Gradient for {name}: {param.grad.norm().item()}")
-            else:
-                print(f"No gradient for {name}")
 
     def train_step(policy, data, optim, loss_fn):
         optim.zero_grad()
@@ -426,17 +296,6 @@ def main():
         data = data.to(device)
 
         pred_actions = policy(data)
-
-        # # Get the joint positions of the agent
-        # agent_q_pos = data.x[:, 0].reshape(data.y.shape[0], -1).requires_grad_(True)
-
-        # # Get the next joint positions of the agent using the predicted and actual actions
-        # pred_next_q_pos = (agent_q_pos + (pred_actions * 0.1))[:, :-1]
-        # next_q_pos = (agent_q_pos + (data.y * 0.1))[:, :-1]
-
-        # # Get the end-effector positions for the predicted and actual joint positions
-        # pred_ee_pos = get_ee_pos(pred_next_q_pos)
-        # ee_pos = get_ee_pos(next_q_pos)
 
         # compute loss and optimize
         # L1 regularization
@@ -460,7 +319,7 @@ def main():
         i = 0
         pbar = tqdm(total=num_episodes, leave=False)
         while i < num_episodes:
-            graph = build_hetero_graph(th.from_numpy(obs).float(), th.zeros(8))
+            graph = build_graph(th.from_numpy(obs).float(), th.zeros(8))
             # move to appropriate device and unsqueeze to add a batch dimension
             obs_device = graph.to(device)
             with th.no_grad():

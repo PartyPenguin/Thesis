@@ -40,7 +40,7 @@ class MyEnv(StationaryManipulationEnv):
         goal_x = self._episode_rng.uniform(0.2, 0.4)
         goal_y = self._episode_rng.uniform(-0.2, 0.2)
         goal_z = self._episode_rng.uniform(0, 0.5)
-        self.goal_pos = np.hstack([goal_x, goal_y, 0.2])
+        self.goal_pos = np.hstack([goal_x, goal_y, goal_z])
 
         self.goal_site.set_pose(Pose(self.goal_pos, [0,1,0,0]))
 
