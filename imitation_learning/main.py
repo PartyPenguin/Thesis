@@ -74,8 +74,8 @@ def build_graph(obs, action):
         edge_index.append([i, i + 1])
 
     # Add Skip connections between joint 2 and join 7 and joint 3 and joint 6
-    edge_index.append([1, 6])
-    edge_index.append([2, 5])
+    # edge_index.append([1, 6])
+    # edge_index.append([2, 5])
     edge_index = th.tensor(edge_index, dtype=th.long).t().contiguous()
     # Make graph undirected
     edge_index = th.cat([edge_index, edge_index[[1, 0]]], dim=-1)
@@ -192,12 +192,17 @@ class GeometricManiSkill2Dataset(GeometricDataset):
 class GCNPolicy(nn.Module):
     def __init__(self, obs_dims, act_dims):
         super().__init__()
-        self.conv1 = GCNConv(obs_dims, 32)
-        self.conv3 = GCNConv(32, act_dims)
+        self.conv1 = GCNConv(obs_dims, 128)
+        self.dropout = nn.Dropout(0.5)
+        self.conv2 = GCNConv(128,128)
+        self.conv3 = GCNConv(128, act_dims)
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
         x = self.conv1(x, edge_index)
+        x = x.relu()
+        #x = self.dropout(x)
+        x = self.conv2(x, edge_index)
         x = x.relu()
         x = self.conv3(x, edge_index)
         x = x.tanh()
