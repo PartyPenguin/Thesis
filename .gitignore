@@ -134,4 +134,4 @@ pyright/
 # Customizable ignore rules
 custom_ignore/
 
-trajectories.h5
+trajectories*.h5

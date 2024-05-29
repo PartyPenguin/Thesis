@@ -1,9 +1,15 @@
+import sys
+
+sys.path.append("/home/nicolas/Documents/Development/Thesis/code/ManiSkill")
+print(sys.path)
+
 import mani_skill2.envs
-from envs.my_env import MyEnv
 import os
 import numpy as np
 import gymnasium as gym
 from motion_planner import MotionPlanner
+from mani_skill2.agents.base_controller import CombinedController
+from mani_skill2.agents.controllers import PDJointPosController
 from tqdm import tqdm
 from mani_skill2.utils.wrappers import RecordEpisode
 from aggregate_dataset import merge_hdf5_files, merge_json_files_into_file_a
@@ -12,6 +18,8 @@ import multiprocessing
 # os.environ["OPENBLAS_NUM_THREADS"] = "1"
 # os.environ["DISPLAY"] = ":0"
 
+control_mode = "pd_joint_pos"
+
 
 def run_trajectory_process(process_id, max_trajectories, output_dir):
     num_trajectories = 0
@@ -19,7 +27,7 @@ def run_trajectory_process(process_id, max_trajectories, output_dir):
     env = gym.make(
         "MyEnv-v0",
         obs_mode="state",
-        control_mode="pd_joint_pos",
+        control_mode=control_mode,
         render_mode="human",
     )
     env = RecordEpisode(
@@ -40,9 +48,6 @@ def run_trajectory_process(process_id, max_trajectories, output_dir):
         if plan["status"] != "success":
             continue
         n = len(plan["position"])
-
-        delta_actions = np.diff(plan["position"], axis=0)
-        # delta_actions = normalize_deltas(delta_actions)
 
         for i in range(n):
             # Velocity control
@@ -67,8 +72,8 @@ def run_trajectory_process(process_id, max_trajectories, output_dir):
 
 
 def main():
-    max_trajectories = 20000
-    num_processes = 1
+    max_trajectories = 6000
+    num_processes = 4
     trajectories_per_process = max_trajectories // num_processes
     output_dir = "trajectories_output"
     os.makedirs(output_dir, exist_ok=True)

@@ -26,7 +26,6 @@ import mani_skill2.envs
 
 import pytorch_kinematics as pk
 
-from envs.my_env import MyEnv
 from mani_skill2.utils.wrappers import RecordEpisode
 
 device = "cuda" if th.cuda.is_available() else "cpu"
@@ -64,6 +63,8 @@ def build_graph(obs, action):
                     q_vel[i].unsqueeze(0),
                     goal_pos,
                     tcp_to_goal_pos,
+                    base_pose,
+                    tcp_pose,
                 ],
                 dim=0,
             )
@@ -74,8 +75,8 @@ def build_graph(obs, action):
         edge_index.append([i, i + 1])
 
     # Add Skip connections between joint 2 and join 7 and joint 3 and joint 6
-    # edge_index.append([1, 6])
-    # edge_index.append([2, 5])
+    edge_index.append([1, 6])
+    edge_index.append([2, 5])
     edge_index = th.tensor(edge_index, dtype=th.long).t().contiguous()
     # Make graph undirected
     edge_index = th.cat([edge_index, edge_index[[1, 0]]], dim=-1)
@@ -87,58 +88,6 @@ def build_graph(obs, action):
     # g = to_networkx(data)
     # nx.draw(g)
     # plt.show()
-    return data
-
-
-def build_hetero_graph(obs, action):
-    # build a hetero graph based on the observations. Each joint of the robot is a node in the graph. And the goal position is another node in the graph.
-    from torch_geometric.data import HeteroData
-    from torch_geometric.utils import to_networkx
-    import matplotlib.pyplot as plt
-    import networkx as nx
-
-    data = HeteroData()
-
-    q_pos = obs[:8]  # Joint positions 8 dimensions
-    q_vel = obs[9:17]  # Joint velocities 8 dimensions
-    base_pose = obs[18:25]  # Base pose 7 dimensions
-    tcp_pose = obs[25:32]  # TCP pose 7 dimensions
-    goal_pos = obs[32:39]  # Goal pose 5 dimensions
-    tcp_to_goal_pos = obs[39:42]  # TCP to goal position 3 dimensions
-
-    joint_nodes = []
-    goal_node = []
-
-    for i in range(q_pos.shape[0]):
-        joint_nodes.append(
-            th.cat([q_pos[i].unsqueeze(0), q_vel[i].unsqueeze(0), tcp_pose], dim=0)
-        )
-    joint_nodes = th.stack(joint_nodes, dim=0)
-
-    goal_node = th.cat([goal_pos, tcp_to_goal_pos], dim=0)
-
-    data["joint"].x = joint_nodes
-    data["goal"].x = goal_node.unsqueeze(0)
-
-    joint_edge_index = []
-    goal_edge_index = []
-    for i in range(joint_nodes.shape[0] - 1):
-        joint_edge_index.append([i, i + 1])
-
-    joint_edge_index = th.tensor(joint_edge_index, dtype=th.long).t().contiguous()
-
-    for i in range(joint_nodes.shape[0] - 1):
-        goal_edge_index.append([0, i + 1])
-
-    goal_edge_index = th.tensor(goal_edge_index, dtype=th.long).t().contiguous()
-
-    data["joint", "linked", "joint"].edge_index = joint_edge_index
-    data["goal", "informs", "joint"].edge_index = goal_edge_index
-
-    data.y = action.unsqueeze(0)
-
-    data = data.to_homogeneous()
-
     return data
 
 
@@ -192,19 +141,17 @@ class GeometricManiSkill2Dataset(GeometricDataset):
 class GCNPolicy(nn.Module):
     def __init__(self, obs_dims, act_dims):
         super().__init__()
-        self.conv1 = GCNConv(obs_dims, 128)
-        self.dropout = nn.Dropout(0.5)
-        self.conv2 = GCNConv(128, 128)
-        self.conv3 = GCNConv(128, act_dims)
+        self.conv1 = GCNConv(obs_dims, 1024)
+        self.conv2 = GCNConv(1024, 1024)
+        self.lin = Linear(1024, act_dims)
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
         x = self.conv1(x, edge_index)
         x = x.relu()
-        # x = self.dropout(x)
         x = self.conv2(x, edge_index)
-        x = x.relu()
-        x = self.conv3(x, edge_index)
+
+        x = self.lin(x)
         x = x.tanh()
         x = global_mean_pool(x, data.batch)
 
@@ -231,7 +178,7 @@ def parse_args():
         help="path for where logs, checkpoints, and videos are saved",
     )
     parser.add_argument(
-        "--steps", type=int, help="number of training steps", default=20000
+        "--steps", type=int, help="number of training steps", default=30000
     )
     parser.add_argument(
         "--eval", action="store_true", help="whether to only evaluate policy"
@@ -247,8 +194,8 @@ def load_data(path):
     dataset = GeometricManiSkill2Dataset(path, root="")
     dataloader = GeometricDataLoader(
         dataset,
-        batch_size=256,
-        num_workers=24,
+        batch_size=64,
+        num_workers=4,
         pin_memory=True,
         drop_last=True,
         shuffle=True,
@@ -272,7 +219,7 @@ def main():
     Path(ckpt_dir).mkdir(parents=True, exist_ok=True)
 
     obs_mode = "state"
-    control_mode = "pd_joint_pos"
+    control_mode = "pd_joint_delta_pos"
     env = gym.make(
         env_id,
         obs_mode=obs_mode,
@@ -363,7 +310,7 @@ def main():
             for batch in dataloader:
                 steps += 1
                 # Add noise to the actions to make the policy more robust
-                # batch.x += th.randn_like(batch.x) * 0.1
+                batch.x += th.randn_like(batch.x) * 0.05
                 loss_val = train_step(policy, batch, optim, loss_fn)
 
                 # track the loss and print it

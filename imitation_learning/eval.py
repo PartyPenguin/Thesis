@@ -1,6 +1,5 @@
 import gymnasium as gym
 import mani_skill2.envs
-from envs.my_env import MyEnv
 import torch as th
 import numpy as np
 from main import GCNPolicy
@@ -12,12 +11,12 @@ log_dir = "logs/eval"
 env = gym.make(
     "MyEnv-v0",
     obs_mode="state",
-    control_mode="pd_joint_pos",
+    control_mode="pd_joint_delta_pos",
     render_mode="human",
 )
 # env = RecordEpisode(env, output_dir=osp.join(log_dir, "videos"), info_on_video=True)
 device = "cuda" if th.cuda.is_available() else "cpu"
-model_path = "logs/bc_state/checkpoints/ckpt_best.pt"
+model_path = "../logs/bc_state/checkpoints/ckpt_best.pt"
 print("Observation space", env.observation_space)
 print("Action space", env.action_space)
 

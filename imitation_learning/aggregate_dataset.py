@@ -7,9 +7,9 @@ import torch as th
 from tqdm import tqdm
 
 # Local application imports
-from envs.my_env import MyEnv
+import mani_skill2.envs
 from motion_planner import MotionPlanner
-from main import GCNPolicy, build_hetero_graph
+from main import GCNPolicy, build_graph
 from mani_skill2.utils.wrappers import RecordEpisode
 
 # Initialize the device based on CUDA availability.
@@ -127,9 +127,7 @@ def aggregate_dataset(env, policy, iter, max_trajectories=500):
                 if plan["status"] != "success":
                     break
 
-                graph = build_hetero_graph(th.from_numpy(obs).float(), th.zeros(8)).to(
-                    device
-                )
+                graph = build_graph(th.from_numpy(obs).float(), th.zeros(8)).to(device)
                 action = policy(graph).squeeze().detach().cpu().numpy()
 
                 delta_qpos = (
