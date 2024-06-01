@@ -12,7 +12,7 @@ import torch.functional as F
 from torch.utils.data import DataLoader, Dataset
 from torch_geometric.loader import DataLoader as GeometricDataLoader
 from torch_geometric.data import Dataset as GeometricDataset
-from torch_geometric.data import Data
+from torch_geometric.data import Data, Batch
 from torch_geometric.nn import GCNConv, RGCNConv, GATConv, SAGEConv, Linear
 from torch_geometric.nn import global_mean_pool
 from torch_geometric.nn import to_hetero
@@ -20,8 +20,11 @@ from torch_geometric.nn import MeanAggregation
 from torch_geometric.utils import to_networkx
 import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
+from torch.nn import Conv1d
 from tqdm import tqdm
+from collections import deque
 
+from modules import TimeDistributed
 import mani_skill2.envs
 
 import pytorch_kinematics as pk
@@ -29,6 +32,10 @@ import pytorch_kinematics as pk
 from mani_skill2.utils.wrappers import RecordEpisode
 
 device = "cuda" if th.cuda.is_available() else "cpu"
+
+# Config
+DOF = 8  # 8 degrees of freedom for the robot
+WINDOW_SIZE = 5  # Number of observations to use for each training step
 
 
 # loads h5 data into memory for faster access
@@ -91,6 +98,37 @@ def build_graph(obs, action):
     return data
 
 
+def transform_obs(obs):
+
+    # Extract joint features from observations
+    joint_positions = obs[:, :8]  # Joint property | Joint positions 8 dimensions
+    joint_velocities = obs[:, 9:17]  # Joint property | Joint velocities 8 dimensions
+
+    # Extract context features from observations
+    base_pose = obs[:, 18:25]  # Context | Base pose 7 dimensions
+    tcp_pose = obs[:, 25:32]  # Context | TCP pose 7 dimensions
+    goal_position = obs[:, 32:39]  # Context | Goal position 7 dimensions
+    tcp_to_goal_position = obs[:, 39:42]  # Context | TCP to goal position 3 dimensions
+
+    # Stack joint positions and velocities along a new axis to create joint features
+    # This transforms the observations to a NxQxD format with N being the number of observations,
+    # Q being the number of joints, and D being the number of dimensions for each joint.
+    joint_features = np.stack((joint_positions, joint_velocities), axis=2)
+
+    # Concatenate all context features into a single array
+    context_info = np.hstack([base_pose, tcp_pose, goal_position, tcp_to_goal_position])
+
+    # Repeat the context information for each joint and reshape to match the shape of joint_features
+    context_features = np.tile(context_info, (8, 1, 1)).reshape(
+        (joint_features.shape[0], joint_features.shape[1], context_info.shape[1])
+    )
+
+    # Concatenate joint features and context features along the last axis
+    combined_features = np.concatenate([joint_features, context_features], axis=2)
+
+    return combined_features
+
+
 class GeometricManiSkill2Dataset(GeometricDataset):
     def __init__(
         self, dataset_file: str, root, load_count=-1, transform=None, pre_transform=None
@@ -112,7 +150,7 @@ class GeometricManiSkill2Dataset(GeometricDataset):
 
         self.observations = []
         self.actions = []
-        self.total_frames = 0
+        self.episode_map = []
         if load_count == -1:
             load_count = len(self.episodes)
         for eps_id in tqdm(range(load_count)):
@@ -123,16 +161,53 @@ class GeometricManiSkill2Dataset(GeometricDataset):
             # is the terminal observation which has no actions
             self.observations.append(trajectory["obs"][:-1])
             self.actions.append(trajectory["actions"])
-        self.observations = np.vstack(self.observations)
+            self.episode_map.append(
+                np.full(len(trajectory["obs"]) - 1, eps["episode_id"])
+            )
+
+        self.observations = transform_obs(np.vstack(self.observations))
         self.actions = np.vstack(self.actions)
+        self.episode_map = np.hstack(self.episode_map)
 
     def len(self):
         return len(self.observations)
 
     def get(self, idx):
-        obs = th.from_numpy(self.observations[idx]).float()
+        # Get the action for the current index and convert it to a PyTorch tensor
         action = th.from_numpy(self.actions[idx]).float()
-        return build_graph(obs, action)
+
+        # Get the episode number for the current index
+        episode = self.episode_map[idx]
+
+        # We want to create a sliding window of observations of size window_size.
+        # The window should start at idx-window_size and end at idx.
+        # The observations must be from the same episode.
+
+        # Create the window of episode numbers
+        episode_window = self.episode_map[max(0, idx - WINDOW_SIZE + 1) : idx + 1]
+
+        # Create a mask where the episode number matches the current episode
+        mask = episode_window == episode
+
+        # Use the mask to select the corresponding observations and convert them to a PyTorch tensor
+
+        obs = th.from_numpy(
+            self.observations[max(0, idx - WINDOW_SIZE + 1) : idx + 1][mask]
+        ).float()
+
+        # If the observation tensor is shorter than window_size (because we're at the start of an episode),
+        # pad it with zeros at the beginning.
+        if obs.shape[0] < WINDOW_SIZE:
+            obs = th.cat(
+                [
+                    th.zeros(WINDOW_SIZE - obs.shape[0], obs.shape[1], obs.shape[2]),
+                    obs,
+                ],
+                dim=0,
+            )
+
+        # Return the observation tensor and the action for the current index
+        return obs, action
 
     def close(self):
         self.data.close()
@@ -141,19 +216,70 @@ class GeometricManiSkill2Dataset(GeometricDataset):
 class GCNPolicy(nn.Module):
     def __init__(self, obs_dims, act_dims):
         super().__init__()
-        self.conv1 = GCNConv(obs_dims, 1024)
-        self.conv2 = GCNConv(1024, 1024)
-        self.lin = Linear(1024, act_dims)
+
+        # Define the convolution layers
+        self.conv1 = TimeDistributed(Conv1d(obs_dims, 256, 3))
+        self.conv2 = TimeDistributed(Conv1d(256, 256, 3))
+
+        # Define the GCN layers
+        self.gcn_conv1 = GCNConv(256, 128)
+        self.gcn_conv2 = GCNConv(128, 128)
+
+        # Define the linear layer
+        self.lin = Linear(128, act_dims)
+
+        # Define the dropout layer
+        # self.dropout = nn.Dropout(0.1)
+
+    def create_graph(self, data):
+        # Initialize the edge index list
+        edge_index = [[i, i + 1] for i in range(data.shape[0] - 1)]
+
+        # Add skip connections
+        edge_index.extend([[1, 6], [2, 5]])
+
+        # Convert to tensor and make the graph undirected
+        edge_index = th.tensor(edge_index, dtype=th.long).t().contiguous()
+        edge_index = th.cat([edge_index, edge_index[[1, 0]]], dim=-1)
+
+        # Create the graph
+        graph = Data(x=data, edge_index=edge_index)
+
+        return graph
 
     def forward(self, data):
-        x, edge_index = data.x, data.edge_index
-        x = self.conv1(x, edge_index)
-        x = x.relu()
-        x = self.conv2(x, edge_index)
 
+        # Switch time and batch dimensions
+        data = data.permute(0, 2, 3, 1)
+        # Apply the convolution layers
+        x = self.conv1(data).relu()
+        x = self.conv2(x).relu()
+
+        # Change the dimensions back to batch and time
+        x = x.permute(0, 3, 1, 2).squeeze()
+
+        # Create a graph for each batch item
+        graph_list = (
+            [self.create_graph(x[i]) for i in range(data.shape[0])]
+            if data.shape[0] != 1
+            else [self.create_graph(x)]
+        )
+        graph = Batch.from_data_list(graph_list).to(device)
+
+        # Apply the GCN layers
+        x = self.gcn_conv1(graph.x, graph.edge_index).relu()
+        # x = self.dropout(x)
+        x = self.gcn_conv2(x, graph.edge_index).relu()
+        # x = self.dropout(x)
+
+        # Apply the linear layer
         x = self.lin(x)
-        x = x.tanh()
-        x = global_mean_pool(x, data.batch)
+
+        # Apply the tanh activation function because the actions are in the range [-1, 1]
+        x = th.tanh(x)
+
+        # Apply global mean pooling
+        x = global_mean_pool(x, graph.batch)
 
         return x
 
@@ -237,9 +363,9 @@ def main():
             demo_path is not None
         ), "Need to provide a demonstration dataset via --demos"
         dataloader, dataset = load_data(demo_path)
-        data: Data = dataset[0]
+        obs, actions = dataset[0]
         # create our policy
-        policy = GCNPolicy(data.x.shape[1], data.y.shape[1])
+        policy = GCNPolicy(obs.shape[2], actions.shape[0])
     # move model to gpu if possible
     policy = policy.to(device)
     print(policy)
@@ -253,9 +379,11 @@ def main():
     def train_step(policy, data, optim, loss_fn):
         optim.zero_grad()
         # move data to appropriate device first
-        data = data.to(device)
+        obs, actions = data
+        obs = obs.to(device)
+        actions = actions.to(device)
 
-        pred_actions = policy(data)
+        pred_actions = policy(obs)
 
         # compute loss and optimize
         # L1 regularization
@@ -263,32 +391,37 @@ def main():
         l1_norm = sum(p.abs().sum() for p in policy.parameters())
 
         # L2 regularization
-        l2_lambda = 0.0001
+        l2_lambda = 0.00005
         l2_norm = sum(p.pow(2.0).sum() for p in policy.parameters())
 
         # compute loss and optimize
-        loss = loss_fn(data.y, pred_actions)
+        loss = loss_fn(actions, pred_actions)  # + l2_lambda * l2_norm
         # loss = loss_fn(pred_ee_pos, ee_pos)
         loss.backward()
         optim.step()
         return loss.item()
 
     def evaluate_policy(env, policy, num_episodes=10):
-        obs, _ = env.reset()
+        obs_list = deque(maxlen=WINDOW_SIZE)
+        # Fill obs_list with zeros
+        for _ in range(WINDOW_SIZE):
+            obs_list.append(np.zeros_like(env.reset()[0]))
+        obs_list.append(env.reset()[0])
         successes = []
         i = 0
         pbar = tqdm(total=num_episodes, leave=False)
         while i < num_episodes:
-            graph = build_graph(th.from_numpy(obs).float(), th.zeros(8))
+            obs = th.as_tensor(transform_obs(np.array(obs_list)))
             # move to appropriate device and unsqueeze to add a batch dimension
-            obs_device = graph.to(device)
+            obs_device = obs.to(device).unsqueeze(0).float()
             with th.no_grad():
                 action = policy(obs_device).squeeze().cpu().numpy()
             obs, reward, terminated, truncated, info = env.step(action)
+            obs_list.append(obs)
             if terminated or truncated:
                 successes.append(info["success"])
                 i += 1
-                obs, _ = env.reset(seed=i)
+                obs_list.append(env.reset(seed=i)[0])
                 pbar.update(1)
         success_rate = np.mean(successes)
         return success_rate
@@ -310,7 +443,7 @@ def main():
             for batch in dataloader:
                 steps += 1
                 # Add noise to the actions to make the policy more robust
-                batch.x += th.randn_like(batch.x) * 0.05
+                # batch.x += th.randn_like(batch.x) * 0.05
                 loss_val = train_step(policy, batch, optim, loss_fn)
 
                 # track the loss and print it
@@ -331,7 +464,7 @@ def main():
             if epoch_loss < best_epoch_loss:
                 best_epoch_loss = epoch_loss
                 save_model(policy, osp.join(ckpt_dir, "ckpt_best.pt"))
-            if epoch % 100 == 0:
+            if epoch % 10 == 0:
                 print("Evaluating")
                 success_rate = evaluate_policy(env, policy)
                 writer.add_scalar("test/success_rate", success_rate, epoch)
