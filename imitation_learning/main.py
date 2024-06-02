@@ -35,7 +35,7 @@ device = "cuda" if th.cuda.is_available() else "cpu"
 
 # Config
 DOF = 8  # 8 degrees of freedom for the robot
-WINDOW_SIZE = 5  # Number of observations to use for each training step
+WINDOW_SIZE = 2  # Number of observations to use for each training step
 
 
 # loads h5 data into memory for faster access
@@ -89,12 +89,12 @@ def build_graph(obs, action):
     edge_index = th.cat([edge_index, edge_index[[1, 0]]], dim=-1)
 
     data = Data(x=x, y=action.unsqueeze(0), edge_index=edge_index)
-    # import networkx as nx
-    # import matplotlib.pyplot as plt
+    import networkx as nx
+    import matplotlib.pyplot as plt
 
-    # g = to_networkx(data)
-    # nx.draw(g)
-    # plt.show()
+    g = to_networkx(data)
+    nx.draw(g)
+    plt.show()
     return data
 
 
@@ -119,8 +119,8 @@ def transform_obs(obs):
     context_info = np.hstack([base_pose, tcp_pose, goal_position, tcp_to_goal_position])
 
     # Repeat the context information for each joint and reshape to match the shape of joint_features
-    context_features = np.tile(context_info, (8, 1, 1)).reshape(
-        (joint_features.shape[0], joint_features.shape[1], context_info.shape[1])
+    context_features = np.repeat(
+        context_info[:, np.newaxis, :], joint_features.shape[1], axis=1
     )
 
     # Concatenate joint features and context features along the last axis
@@ -217,27 +217,33 @@ class GCNPolicy(nn.Module):
     def __init__(self, obs_dims, act_dims):
         super().__init__()
 
-        # Define the convolution layers
-        self.conv1 = TimeDistributed(Conv1d(obs_dims, 256, 3))
-        self.conv2 = TimeDistributed(Conv1d(256, 256, 3))
-
         # Define the GCN layers
-        self.gcn_conv1 = GCNConv(256, 128)
+        self.gcn_conv1 = GCNConv(obs_dims, 128)
         self.gcn_conv2 = GCNConv(128, 128)
 
         # Define the linear layer
         self.lin = Linear(128, act_dims)
 
-        # Define the dropout layer
-        # self.dropout = nn.Dropout(0.1)
-
     def create_graph(self, data):
+        time_step = data.shape[0]
+        nodes = data.shape[1]
+
         # Initialize the edge index list
-        edge_index = [[i, i + 1] for i in range(data.shape[0] - 1)]
+        edge_index = [
+            (i + (nodes * j), i + (nodes * j) + 1)
+            for i in range(nodes - 1)
+            for j in range(time_step)
+        ]
 
-        # Add skip connections
-        edge_index.extend([[1, 6], [2, 5]])
+        edge_index.extend(
+            [
+                (i + (nodes * j), i + (nodes * j) + nodes)
+                for i in range(nodes)
+                for j in range(time_step - 1)
+            ]
+        )
 
+        data = th.reshape(data, (time_step * nodes, -1))
         # Convert to tensor and make the graph undirected
         edge_index = th.tensor(edge_index, dtype=th.long).t().contiguous()
         edge_index = th.cat([edge_index, edge_index[[1, 0]]], dim=-1)
@@ -245,32 +251,28 @@ class GCNPolicy(nn.Module):
         # Create the graph
         graph = Data(x=data, edge_index=edge_index)
 
+        # import networkx as nx
+        # import matplotlib.pyplot as plt
+
+        # g = to_networkx(graph)
+        # nx.draw(g)
+        # plt.show()
+
         return graph
 
     def forward(self, data):
-
-        # Switch time and batch dimensions
-        data = data.permute(0, 2, 3, 1)
-        # Apply the convolution layers
-        x = self.conv1(data).relu()
-        x = self.conv2(x).relu()
-
-        # Change the dimensions back to batch and time
-        x = x.permute(0, 3, 1, 2).squeeze()
-
+        x = data
         # Create a graph for each batch item
         graph_list = (
             [self.create_graph(x[i]) for i in range(data.shape[0])]
             if data.shape[0] != 1
-            else [self.create_graph(x)]
+            else [self.create_graph(x.squeeze(0))]
         )
         graph = Batch.from_data_list(graph_list).to(device)
 
         # Apply the GCN layers
         x = self.gcn_conv1(graph.x, graph.edge_index).relu()
-        # x = self.dropout(x)
         x = self.gcn_conv2(x, graph.edge_index).relu()
-        # x = self.dropout(x)
 
         # Apply the linear layer
         x = self.lin(x)
