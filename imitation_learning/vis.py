@@ -12,7 +12,7 @@ def load_h5_file(file_path):
     data = []
     with h5py.File(file_path, "r") as f:
         for key in f.keys():
-            data.append(f[key]['obs'][0][-6:-3])
+            data.append(f[key]['obs'][0][32:35])
 
     return np.array(data)
 
@@ -23,7 +23,7 @@ def visualize(data):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    ax.scatter(data[:, 0], data[:, 1], data[:, 2])
+    ax.scatter(data[:, 0]*100, data[:, 1]*100, data[:, 2]*100)
 
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
@@ -32,7 +32,7 @@ def visualize(data):
     plt.show()
 
 def main():
-    file_path = "trajectories.h5"
+    file_path = "trajectories.state.pd_joint_delta_pos.h5"
     data = load_h5_file(file_path)
     visualize(data)
 

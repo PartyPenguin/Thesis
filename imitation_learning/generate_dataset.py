@@ -30,6 +30,7 @@ def run_trajectory_process(process_id, max_trajectories, output_dir):
         control_mode=control_mode,
         render_mode="human",
     )
+    env.reset(seed=np.random.randint(1000))
     env = RecordEpisode(
         env=env,
         output_dir=output_dir,
