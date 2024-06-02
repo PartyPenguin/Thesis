@@ -119,8 +119,8 @@ def transform_obs(obs):
     context_info = np.hstack([base_pose, tcp_pose, goal_position, tcp_to_goal_position])
 
     # Repeat the context information for each joint and reshape to match the shape of joint_features
-    context_features = np.tile(context_info, (8, 1, 1)).reshape(
-        (joint_features.shape[0], joint_features.shape[1], context_info.shape[1])
+    context_features = np.repeat(
+        context_info[:, np.newaxis, :], joint_features.shape[1], axis=1
     )
 
     # Concatenate joint features and context features along the last axis
@@ -218,11 +218,11 @@ class GCNPolicy(nn.Module):
         super().__init__()
 
         # Define the convolution layers
-        self.conv1 = TimeDistributed(Conv1d(obs_dims, 256, 3))
-        self.conv2 = TimeDistributed(Conv1d(256, 256, 3))
+        self.conv1 = TimeDistributed(Conv1d(obs_dims, 64, 3))
+        self.conv2 = TimeDistributed(Conv1d(64, 64, 3))
 
         # Define the GCN layers
-        self.gcn_conv1 = GCNConv(256, 128)
+        self.gcn_conv1 = GCNConv(64, 128)
         self.gcn_conv2 = GCNConv(128, 128)
 
         # Define the linear layer
