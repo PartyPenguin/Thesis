@@ -23,7 +23,7 @@ control_mode = "pd_joint_pos"
 
 def run_trajectory_process(process_id, max_trajectories, output_dir):
     num_trajectories = 0
-    vis = True
+    vis = False
     env = gym.make(
         "MyEnv-v0",
         obs_mode="state",
@@ -41,8 +41,12 @@ def run_trajectory_process(process_id, max_trajectories, output_dir):
         total=max_trajectories, position=process_id, desc=f"Process {process_id}"
     )
 
+    obs, reset_info = env.reset(seed=np.random.randint(1000))
+    prev_qpos = env.agent.robot.get_qpos()
     while num_trajectories < max_trajectories:
-        obs, reset_info = env.reset()
+        env.reset()
+        env.agent.reset(prev_qpos)
+        obs = env.get_obs()
         terminated, truncated = False, False
         plan = mp.move_to_pose_with_screw(env.unwrapped.goal_site.pose)
         if plan["status"] != "success":
@@ -61,6 +65,7 @@ def run_trajectory_process(process_id, max_trajectories, output_dir):
 
             obs, reward, done, truncated, info = env.step(action)
 
+            prev_qpos = env.agent.robot.get_qpos()
             if vis:
                 env.render()
 

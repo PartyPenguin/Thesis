@@ -1,15 +1,29 @@
-# Import required packages
+# Standard library imports
 import argparse
 import os.path as osp
+from collections import deque
 from pathlib import Path
 
+# Related third party imports
 import gymnasium as gym
 import h5py
 import numpy as np
 import torch as th
 import torch.nn as nn
-import torch.functional as F
 from torch.utils.data import DataLoader, Dataset
+from torch.utils.tensorboard import SummaryWriter
+from torch.nn import Conv1d
+from tqdm import tqdm
+
+# Local application/library specific imports
+import mani_skill2.envs
+from mani_skill2.envs.sapien_env import BaseEnv
+from mani_skill2.utils.wrappers import RecordEpisode
+from modules import TimeDistributed
+
+# Torch geometric imports
+import torch.functional as F
+import torch_geometric.transforms as T
 from torch_geometric.loader import DataLoader as GeometricDataLoader
 from torch_geometric.data import Dataset as GeometricDataset
 from torch_geometric.data import Data, Batch
@@ -18,24 +32,15 @@ from torch_geometric.nn import global_mean_pool
 from torch_geometric.nn import to_hetero
 from torch_geometric.nn import MeanAggregation
 from torch_geometric.utils import to_networkx
-import torch_geometric.transforms as T
-from torch.utils.tensorboard import SummaryWriter
-from torch.nn import Conv1d
-from tqdm import tqdm
-from collections import deque
 
-from modules import TimeDistributed
-import mani_skill2.envs
-
+# Pytorch kinematics
 import pytorch_kinematics as pk
-
-from mani_skill2.utils.wrappers import RecordEpisode
 
 device = "cuda" if th.cuda.is_available() else "cpu"
 
 # Config
 DOF = 8  # 8 degrees of freedom for the robot
-WINDOW_SIZE = 2  # Number of observations to use for each training step
+WINDOW_SIZE = 4  # Number of observations to use for each training step
 
 
 # loads h5 data into memory for faster access
@@ -147,6 +152,14 @@ class GeometricManiSkill2Dataset(GeometricDataset):
         self.env_info = self.json_data["env_info"]
         self.env_id = self.env_info["env_id"]
         self.env_kwargs = self.env_info["env_kwargs"]
+        self.episode_steps = [
+            episode["elapsed_steps"] for episode in self.json_data["episodes"]
+        ]
+
+        import matplotlib.pyplot as plt
+
+        plt.hist(self.episode_steps, bins=50)
+        plt.show()
 
         self.observations = []
         self.actions = []
@@ -220,6 +233,7 @@ class GCNPolicy(nn.Module):
         # Define the GCN layers
         self.gcn_conv1 = GCNConv(obs_dims, 128)
         self.gcn_conv2 = GCNConv(128, 128)
+        self.gcn_conv3 = GCNConv(128, 128)
 
         # Define the linear layer
         self.lin = Linear(128, act_dims)
@@ -273,6 +287,7 @@ class GCNPolicy(nn.Module):
         # Apply the GCN layers
         x = self.gcn_conv1(graph.x, graph.edge_index).relu()
         x = self.gcn_conv2(x, graph.edge_index).relu()
+        x = self.gcn_conv3(x, graph.edge_index).relu()
 
         # Apply the linear layer
         x = self.lin(x)
@@ -348,12 +363,14 @@ def main():
 
     obs_mode = "state"
     control_mode = "pd_joint_delta_pos"
-    env = gym.make(
+    env: BaseEnv = gym.make(
         env_id,
         obs_mode=obs_mode,
         control_mode=control_mode,
         render_mode="cameras",
     )
+    pinocchio_model = env.agent.robot.create_pinocchio_model()
+    joint_limits = th.tensor(env.agent.robot.get_qlimits()[:8, :]).to(device)
     if args.eval:
         model_path = args.model_path
         if model_path is None:
@@ -368,6 +385,9 @@ def main():
         obs, actions = dataset[0]
         # create our policy
         policy = GCNPolicy(obs.shape[2], actions.shape[0])
+
+    joint_limits = th.tensor(env.agent.robot.get_qlimits()[:8, :]).to(device)
+    joint_limits_batched = joint_limits.expand(dataloader.batch_size, -1, -1)
     # move model to gpu if possible
     policy = policy.to(device)
     print(policy)
@@ -377,6 +397,36 @@ def main():
     # a short save function to save our model
     def save_model(policy, path):
         th.save(policy, path)
+
+    def compute_nullspace_norm(q_batch: th.Tensor):
+        def compute_jacobian(q_batch: th.Tensor) -> th.Tensor:
+            J_batch = []
+            q_batch_numpy = q_batch.cpu().numpy()
+            for q in q_batch_numpy:
+                J_batch.append(
+                    pinocchio_model.compute_single_link_local_jacobian(q, 12)
+                )
+            J_batch = th.tensor(J_batch).to(device)
+            return J_batch
+
+        q_batch = th.cat(
+            [q_batch, th.ones_like(q_batch[:, 0]).unsqueeze(-1)], dim=-1
+        ).double()
+
+        # Compute the Jacobian for the current joint positions in the batch
+        J_batch = compute_jacobian(q_batch)
+
+        # Compute the nullspace of the Jacobian
+        eye_batch = th.eye(J_batch.shape[2]).repeat(J_batch.shape[0], 1, 1).to(device)
+        nullspace_batch = th.sub(eye_batch, (th.pinverse(J_batch) @ J_batch))
+
+        # Project the joint positions into the nullspace
+        nullspace_projection = nullspace_batch @ q_batch.unsqueeze(2)
+
+        # Calculate the norm of the nullspace projection
+        nullspace_norm = th.norm(nullspace_projection, dim=1)
+
+        return nullspace_norm
 
     def train_step(policy, data, optim, loss_fn):
         optim.zero_grad()
@@ -396,9 +446,12 @@ def main():
         l2_lambda = 0.00005
         l2_norm = sum(p.pow(2.0).sum() for p in policy.parameters())
 
+        q_pos = obs[:, -1, :, 0]
+        # Compute the norm of the nullspace projection as a regularization term
+        nullspace_reg = compute_nullspace_norm(q_pos)
+
         # compute loss and optimize
-        loss = loss_fn(actions, pred_actions)  # + l2_lambda * l2_norm
-        # loss = loss_fn(pred_ee_pos, ee_pos)
+        loss = loss_fn(actions, pred_actions) + 0.01 * nullspace_reg.mean()
         loss.backward()
         optim.step()
         return loss.item()

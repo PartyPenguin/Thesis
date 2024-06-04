@@ -36,7 +36,7 @@ terminated, truncated = False, False
 policy = th.load(model_path).to(device)
 
 step = 0
-while step < 2000:
+while True:
     obs = th.as_tensor(transform_obs(np.array(obs_list)))
     obs_device = obs.to(device).unsqueeze(0).float()
     action = policy(obs_device).squeeze().detach().cpu().numpy()
@@ -44,4 +44,12 @@ while step < 2000:
     obs_list.append(obs)
     env.render()  # a display is required to render
     step += 1
+    if terminated or step > 1000:
+        env.update_task()
+        obs_list.clear()
+        for _ in range(WINDOW_SIZE):
+            obs_list.append(np.zeros_like(env.get_obs()))
+        obs_list.append(env.get_obs())
+        step = 0
+
 env.close()
