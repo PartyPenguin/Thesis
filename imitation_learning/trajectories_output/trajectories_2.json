@@ -1,0 +1,353 @@
+{
+  "env_info": {
+    "env_id": "MyEnv-v0",
+    "max_episode_steps": null,
+    "env_kwargs": {
+      "obs_mode": "state",
+      "control_mode": "pd_joint_pos",
+      "render_mode": "human"
+    }
+  },
+  "commit_info": {
+    "commit_id": "d249f42692bdea9865be37bca6981186fd61f660",
+    "branch": "my_branch"
+  },
+  "episodes": [
+    {
+      "episode_id": 0,
+      "episode_seed": 3453326064,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 50,
+      "info": {
+        "elapsed_steps": 50,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 1,
+      "episode_seed": 1280452839,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 62,
+      "info": {
+        "elapsed_steps": 62,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 2,
+      "episode_seed": 696514723,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 42,
+      "info": {
+        "elapsed_steps": 42,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 3,
+      "episode_seed": 1564038930,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 70,
+      "info": {
+        "elapsed_steps": 70,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 4,
+      "episode_seed": 2598965359,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 61,
+      "info": {
+        "elapsed_steps": 61,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 5,
+      "episode_seed": 2495401262,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 54,
+      "info": {
+        "elapsed_steps": 54,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 6,
+      "episode_seed": 3035852835,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 72,
+      "info": {
+        "elapsed_steps": 72,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 7,
+      "episode_seed": 2168819758,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 58,
+      "info": {
+        "elapsed_steps": 58,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 8,
+      "episode_seed": 2999693792,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 57,
+      "info": {
+        "elapsed_steps": 57,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 9,
+      "episode_seed": 2144234575,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 46,
+      "info": {
+        "elapsed_steps": 46,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 10,
+      "episode_seed": 1524942460,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 74,
+      "info": {
+        "elapsed_steps": 74,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 11,
+      "episode_seed": 3127658452,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 72,
+      "info": {
+        "elapsed_steps": 72,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 12,
+      "episode_seed": 131733540,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 80,
+      "info": {
+        "elapsed_steps": 80,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 13,
+      "episode_seed": 2063271014,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 38,
+      "info": {
+        "elapsed_steps": 38,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 14,
+      "episode_seed": 3437115358,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 56,
+      "info": {
+        "elapsed_steps": 56,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 15,
+      "episode_seed": 3531468806,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 55,
+      "info": {
+        "elapsed_steps": 55,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 16,
+      "episode_seed": 885165084,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 53,
+      "info": {
+        "elapsed_steps": 53,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 17,
+      "episode_seed": 1052357301,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 60,
+      "info": {
+        "elapsed_steps": 60,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 18,
+      "episode_seed": 3586635755,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 72,
+      "info": {
+        "elapsed_steps": 72,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 19,
+      "episode_seed": 615734104,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 69,
+      "info": {
+        "elapsed_steps": 69,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 20,
+      "episode_seed": 2564838231,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 64,
+      "info": {
+        "elapsed_steps": 64,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 21,
+      "episode_seed": 3138013511,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 49,
+      "info": {
+        "elapsed_steps": 49,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 22,
+      "episode_seed": 2274556070,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 72,
+      "info": {
+        "elapsed_steps": 72,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 23,
+      "episode_seed": 4108865318,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 64,
+      "info": {
+        "elapsed_steps": 64,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 24,
+      "episode_seed": 1090868530,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 57,
+      "info": {
+        "elapsed_steps": 57,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 25,
+      "episode_seed": 3015291994,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 51,
+      "info": {
+        "elapsed_steps": 51,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 26,
+      "episode_seed": 261732447,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 74,
+      "info": {
+        "elapsed_steps": 74,
+        "is_target_reached": true,
+        "success": true
+      }
+    },
+    {
+      "episode_id": 27,
+      "episode_seed": 1689364474,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_pos",
+      "elapsed_steps": 34,
+      "info": {
+        "elapsed_steps": 34,
+        "is_target_reached": true,
+        "success": true
+      }
+    }
+  ]
+}
