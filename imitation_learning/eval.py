@@ -44,8 +44,9 @@ while True:
     obs_list.append(obs)
     env.render()  # a display is required to render
     step += 1
-    if terminated or step > 1000:
+    if terminated or step > 500:
         env.update_task()
+        # env.reset()
         obs_list.clear()
         for _ in range(WINDOW_SIZE):
             obs_list.append(np.zeros_like(env.get_obs()))

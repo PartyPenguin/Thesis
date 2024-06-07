@@ -156,11 +156,6 @@ class GeometricManiSkill2Dataset(GeometricDataset):
             episode["elapsed_steps"] for episode in self.json_data["episodes"]
         ]
 
-        import matplotlib.pyplot as plt
-
-        plt.hist(self.episode_steps, bins=50)
-        plt.show()
-
         self.observations = []
         self.actions = []
         self.episode_map = []
@@ -337,7 +332,7 @@ def load_data(path):
     dataset = GeometricManiSkill2Dataset(path, root="")
     dataloader = GeometricDataLoader(
         dataset,
-        batch_size=64,
+        batch_size=256,
         num_workers=4,
         pin_memory=True,
         drop_last=True,
@@ -398,7 +393,7 @@ def main():
     def save_model(policy, path):
         th.save(policy, path)
 
-    def compute_nullspace_norm(q_batch: th.Tensor):
+    def compute_nullspace_norm(q_pos_batch: th.Tensor, q_delta_batch: th.Tensor):
         def compute_jacobian(q_batch: th.Tensor) -> th.Tensor:
             J_batch = []
             q_batch_numpy = q_batch.cpu().numpy()
@@ -406,22 +401,48 @@ def main():
                 J_batch.append(
                     pinocchio_model.compute_single_link_local_jacobian(q, 12)
                 )
-            J_batch = th.tensor(J_batch).to(device)
+            J_batch = np.array(J_batch)
+            J_batch = th.tensor(J_batch, device=device, dtype=th.double)
             return J_batch
 
-        q_batch = th.cat(
-            [q_batch, th.ones_like(q_batch[:, 0]).unsqueeze(-1)], dim=-1
-        ).double()
+        # Append a column of ones to q_batch for homogeneous coordinates
+        q_batch = (
+            th.cat(
+                [
+                    q_pos_batch + q_delta_batch,
+                    th.ones_like(q_delta_batch[:, 0]).unsqueeze(-1),
+                ],
+                dim=-1,
+            )
+            .double()
+            .to(device)
+        )
 
-        # Compute the Jacobian for the current joint positions in the batch
-        J_batch = compute_jacobian(q_batch)
+        q_delta_batch = th.cat(
+            [
+                q_delta_batch,
+                th.ones_like(q_delta_batch[:, 0]).unsqueeze(-1).double().to(device),
+            ],
+            dim=-1,
+        )
+
+        # Detach q_batch and convert to numpy for the Pinocchio function
+        q_batch_detached = q_batch.detach()
+        J_batch = compute_jacobian(q_batch_detached)
+
+        q_vel_batch = th.div(q_batch, env.control_timestep)
+
+        # Ensure J_batch is a tensor and requires gradient
+        J_batch = J_batch.requires_grad_()
 
         # Compute the nullspace of the Jacobian
-        eye_batch = th.eye(J_batch.shape[2]).repeat(J_batch.shape[0], 1, 1).to(device)
-        nullspace_batch = th.sub(eye_batch, (th.pinverse(J_batch) @ J_batch))
+        eye_batch = th.eye(J_batch.shape[2], device=device).repeat(
+            J_batch.shape[0], 1, 1
+        )
+        nullspace_batch = eye_batch - th.bmm(th.pinverse(J_batch), J_batch)
 
         # Project the joint positions into the nullspace
-        nullspace_projection = nullspace_batch @ q_batch.unsqueeze(2)
+        nullspace_projection = th.bmm(nullspace_batch, q_delta_batch.unsqueeze(2))
 
         # Calculate the norm of the nullspace projection
         nullspace_norm = th.norm(nullspace_projection, dim=1)
@@ -448,10 +469,10 @@ def main():
 
         q_pos = obs[:, -1, :, 0]
         # Compute the norm of the nullspace projection as a regularization term
-        nullspace_reg = compute_nullspace_norm(q_pos)
+        nullspace_reg = compute_nullspace_norm(q_pos, pred_actions)
 
         # compute loss and optimize
-        loss = loss_fn(actions, pred_actions) + 0.01 * nullspace_reg.mean()
+        loss = loss_fn(actions, pred_actions)  # + 0.001 * nullspace_reg.mean()
         loss.backward()
         optim.step()
         return loss.item()
