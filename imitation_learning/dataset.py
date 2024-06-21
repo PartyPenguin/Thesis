@@ -156,7 +156,7 @@ def transform_obs(obs):
     )
 
     # Concatenate all context features into a single array
-    context_info = np.hstack([goal_position, tcp_to_goal_position])
+    context_info = np.hstack([base_pose, tcp_pose, goal_position, tcp_to_goal_position])
 
     # Repeat the context information for each joint and reshape to match the shape of joint_features
     context_features = np.repeat(
@@ -212,7 +212,7 @@ class GeometricManiSkill2Dataset(GeometricDataset):
                 np.full(len(trajectory["obs"]) - 1, eps["episode_id"])
             )
 
-        self.observations = normalize(np.vstack(self.observations))
+        self.observations = np.vstack(self.observations)
         self.observations = transform_obs(self.observations)
 
         self.actions = np.vstack(self.actions)

@@ -226,7 +226,7 @@ def main():
         nullspace_reg = compute_nullspace_norm(q_pos, pred_actions)
 
         # compute loss and optimize
-        loss = loss_fn(actions, pred_actions) + 0.001 * nullspace_reg.mean()
+        loss = loss_fn(actions, pred_actions)  # + 0.001 * nullspace_reg.mean()
         loss.backward()
         optim.step()
         return loss.item()

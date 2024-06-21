@@ -39,11 +39,8 @@ def run_trajectory_process(process_id, max_trajectories, output_dir):
     )
 
     obs, reset_info = env.reset(seed=np.random.randint(1000))
-    prev_qpos = env.agent.robot.get_qpos()
     while num_trajectories < max_trajectories:
         env.reset()
-        env.agent.reset(prev_qpos)
-        obs = env.get_obs()
         terminated, truncated = False, False
         plan = mp.move_to_pose_with_screw(env.unwrapped.goal_site.pose)
         if plan["status"] != "success":
