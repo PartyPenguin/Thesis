@@ -20,7 +20,7 @@ control_mode = "pd_joint_pos"
 
 def run_trajectory_process(process_id, max_trajectories, output_dir):
     num_trajectories = 0
-    vis = True
+    vis = False
     env = gym.make(
         "MyEnv-v0",
         obs_mode="state",

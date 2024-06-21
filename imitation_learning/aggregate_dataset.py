@@ -9,7 +9,7 @@ from tqdm import tqdm
 # Local application imports
 import mani_skill2.envs
 from motion_planner import MotionPlanner
-from main import GCNPolicy, build_graph
+from modules import GCNPolicy
 from mani_skill2.utils.wrappers import RecordEpisode
 
 # Initialize the device based on CUDA availability.
@@ -107,44 +107,44 @@ def merge_json_files_into_file_a(file_path_a, file_path_b):
     print("File A updated with data from File B.")
 
 
-def aggregate_dataset(env, policy, iter, max_trajectories=500):
-    """Aggregate dataset by simulating environment with policy."""
-    num_trajectories = 0
-    mp = MotionPlanner(env=env)
-    recorder_env = AggregateRecordEpisode(
-        env=env,
-        output_dir="",
-        trajectory_name="trajectories_" + str(iter),
-        save_video=False,
-    )
+# def aggregate_dataset(env, policy, iter, max_trajectories=500):
+#     """Aggregate dataset by simulating environment with policy."""
+#     num_trajectories = 0
+#     mp = MotionPlanner(env=env)
+#     recorder_env = AggregateRecordEpisode(
+#         env=env,
+#         output_dir="",
+#         trajectory_name="trajectories_" + str(iter),
+#         save_video=False,
+#     )
 
-    with tqdm(total=max_trajectories) as progress:
-        while num_trajectories < max_trajectories:
-            obs, reset_info = recorder_env.reset()
-            steps = 0
-            while steps < 100:
-                plan = mp.move_to_pose_with_screw(recorder_env.goal_site.pose)
-                if plan["status"] != "success":
-                    break
+#     with tqdm(total=max_trajectories) as progress:
+#         while num_trajectories < max_trajectories:
+#             obs, reset_info = recorder_env.reset()
+#             steps = 0
+#             while steps < 100:
+#                 plan = mp.move_to_pose_with_screw(recorder_env.goal_site.pose)
+#                 if plan["status"] != "success":
+#                     break
 
-                graph = build_graph(th.from_numpy(obs).float(), th.zeros(8)).to(device)
-                action = policy(graph).squeeze().detach().cpu().numpy()
+#                 graph = build_graph(th.from_numpy(obs).float(), th.zeros(8)).to(device)
+#                 action = policy(graph).squeeze().detach().cpu().numpy()
 
-                delta_qpos = (
-                    plan["position"][0] - recorder_env.agent.robot.get_qpos()[:-2]
-                )
-                true_action = np.hstack([delta_qpos, 0.1])
-                true_action = (
-                    true_action / 0.1
-                )  # Normalize to action space range [-1,1]
+#                 delta_qpos = (
+#                     plan["position"][0] - recorder_env.agent.robot.get_qpos()[:-2]
+#                 )
+#                 true_action = np.hstack([delta_qpos, 0.1])
+#                 true_action = (
+#                     true_action / 0.1
+#                 )  # Normalize to action space range [-1,1]
 
-                obs, reward, done, truncated, info = recorder_env.step(
-                    action, true_action
-                )
-                steps += 1
-            num_trajectories += 1
-            progress.update(1)
-        recorder_env._h5_file.close()
+#                 obs, reward, done, truncated, info = recorder_env.step(
+#                     action, true_action
+#                 )
+#                 steps += 1
+#             num_trajectories += 1
+#             progress.update(1)
+#         recorder_env._h5_file.close()
 
-        merge_hdf5_files(f"trajectories.h5", f"trajectories_{iter}.h5")
-        merge_json_files_into_file_a("trajectories.json", f"trajectories_{iter}.json")
+#         merge_hdf5_files(f"trajectories.h5", f"trajectories_{iter}.h5")
+#         merge_json_files_into_file_a("trajectories.json", f"trajectories_{iter}.json")
