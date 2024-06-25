@@ -22,11 +22,11 @@ import joblib
 import mani_skill2.envs
 from mani_skill2.envs.sapien_env import BaseEnv
 from mani_skill2.utils.wrappers import RecordEpisode
-from modules import GCNPolicy
+from modules import GCNPolicy, STGCN
 from dataset import GeometricManiSkill2Dataset
 from dataset import transform_obs
 from dataset import create_graph
-from dataset import normalize
+from dataset import normalize, standardize
 
 # Torch geometric imports
 import torch.functional as F
@@ -83,7 +83,7 @@ def load_data(path):
     dataset = GeometricManiSkill2Dataset(path, root="")
     dataloader = GeometricDataLoader(
         dataset,
-        batch_size=64,
+        batch_size=128,
         num_workers=4,
         pin_memory=True,
         drop_last=True,
@@ -129,7 +129,7 @@ def main():
         dataloader, dataset = load_data(demo_path)
         obs, actions = dataset[0]
         # create our policy
-        policy = GCNPolicy(obs.shape[2], actions.shape[0])
+        policy = STGCN(obs.shape[2], 128, WINDOW_SIZE)
 
     # move model to gpu if possible
     policy = policy.to(device)
@@ -202,11 +202,14 @@ def main():
         obs = obs.to(device)
         actions = actions.to(device)
 
+        obs_reshaped = th.reshape(
+            obs, (obs.shape[0] * obs.shape[1], 1, obs.shape[2], obs.shape[3])
+        )
         # create batched graph
         graph_list = (
-            [create_graph(obs[i]) for i in range(obs.shape[0])]
-            if obs.shape[0] != 1
-            else [create_graph(obs.squeeze(0))]
+            [create_graph(obs_reshaped[i]) for i in range(obs_reshaped.shape[0])]
+            if obs_reshaped.shape[0] != 1
+            else [create_graph(obs_reshaped.squeeze(0))]
         )
         graph = Batch.from_data_list(graph_list).to(device)
 
@@ -226,7 +229,7 @@ def main():
         nullspace_reg = compute_nullspace_norm(q_pos, pred_actions)
 
         # compute loss and optimize
-        loss = loss_fn(actions, pred_actions)  # + 0.001 * nullspace_reg.mean()
+        loss = loss_fn(actions, pred_actions) + 0.0001 * nullspace_reg.mean()
         loss.backward()
         optim.step()
         return loss.item()
@@ -241,16 +244,19 @@ def main():
         i = 0
         pbar = tqdm(total=num_episodes, leave=False)
         while i < num_episodes:
-            obs = transform_obs(np.array(obs_list))
             # Normalize data
-            scaler = joblib.load("scaler.pkl")
-            mean = joblib.load("mean.pkl")
-            std = joblib.load("std.pkl")
-            obs = normalize(data=obs, scaler=scaler, mean=mean, std=std)
+            scaler = joblib.load("norm_scaler.pkl")
+            # mean = joblib.load("mean.pkl")
+            # std = joblib.load("std.pkl")
+            obs = normalize(data=np.array(obs_list), scaler=scaler)
+            obs = transform_obs(np.array(obs_list))
 
             obs = th.tensor(obs, device=device).float()
+            obs_reshaped = th.reshape(
+                obs, (obs.shape[0] * obs.shape[1], 1, obs.shape[2], obs.shape[3])
+            )
             # move to appropriate device and unsqueeze to add a batch dimension
-            obs_device = obs.to(device)
+            obs_device = obs_reshaped.to(device)
             graph = create_graph(obs_device).to(device)
             with th.no_grad():
                 action = policy(graph).squeeze().detach().cpu().numpy()

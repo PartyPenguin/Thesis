@@ -8,6 +8,8 @@ from collections import deque
 from main import transform_obs
 from main import WINDOW_SIZE
 from dataset import create_graph
+import joblib
+from dataset import normalize, standardize
 
 log_dir = "logs/eval"
 env = gym.make(
@@ -41,6 +43,11 @@ num_runs = 100
 run = 0
 run_score = 0
 while run < num_runs:
+    # Normalize data
+    scaler = joblib.load("norm_scaler.pkl")
+    # mean = joblib.load("mean.pkl")
+    # std = joblib.load("std.pkl")
+    obs = normalize(data=np.array(obs_list), scaler=scaler)
     obs = th.as_tensor(transform_obs(np.array(obs_list)))
     obs_device = obs.to(device).float()
     graph = create_graph(obs_device).to(device)

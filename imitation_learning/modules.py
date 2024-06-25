@@ -92,3 +92,80 @@ class GATPolicy(nn.Module):
         x = global_mean_pool(x, batch)
 
         return x
+
+
+class STGCNLayer(nn.Module):
+    def __init__(self, in_channels, spatial_channels, out_channels, time_window):
+        super(STGCNLayer, self).__init__()
+        self.time_window = time_window
+        # Spatial graph convolution layer
+        self.spatial_conv = GCNConv(in_channels, spatial_channels)
+
+        # Temporal convolution layer
+        self.temporal_conv = nn.Conv2d(
+            spatial_channels, out_channels, (1, 3), padding=(0, 1)
+        )
+
+        # Additional layer to map to the desired output channels
+        self.out_conv = nn.Conv2d(out_channels, out_channels, (1, 1))
+
+        # Batch normalization and activation
+        self.batch_norm = nn.BatchNorm2d(out_channels)
+        self.relu = nn.ReLU()
+
+    def forward(self, x, edge_index, batch_size, num_nodes):
+
+        # Apply spatial GCN across all nodes and time steps
+        x = self.spatial_conv(x, edge_index)
+
+        # Reshape to [batch_size, num_nodes, time_window, spatial_channels]
+        x = x.view(batch_size, self.time_window, num_nodes, -1)
+        x = x.permute(
+            0, 3, 2, 1
+        )  # [batch_size, spatial_channels, num_nodes, time_window]
+
+        # Apply temporal convolution
+        x = self.temporal_conv(x)
+        x = self.batch_norm(x)
+        x = self.relu(x)
+
+        # Additional convolution to map to the output channels
+        x = self.out_conv(x).squeeze()
+
+        # Activation
+        x = th.tanh(x)
+
+        # Reshape to [batch_size * time_window * num_nodes, spatial_channels]
+        x = x.view(-1, x.shape[1])
+
+        return x
+
+
+class STGCN(nn.Module):
+    def __init__(self, node_features, spatial_features, time_window):
+        super(STGCN, self).__init__()
+        self.time_window = time_window
+        self.spatial_features = spatial_features
+        self.stgcn_layers = nn.Sequential(
+            STGCNLayer(node_features, spatial_features, spatial_features, time_window),
+            STGCNLayer(
+                spatial_features, spatial_features, spatial_features, time_window
+            ),
+        )
+        self.regressor = nn.Linear(spatial_features, 8)
+
+    def forward(self, data):
+        x, edge_index = data.x, data.edge_index
+        batch_size = 128
+        num_nodes = 8
+
+        x = self.stgcn_layers[0](x, edge_index, batch_size, num_nodes)
+        x = self.stgcn_layers[1](x, edge_index, batch_size, num_nodes)
+
+        x = self.regressor(x)
+
+        x = x.view(batch_size, self.time_window, num_nodes, -1)
+
+        x = x.mean(dim=(1, 3))
+
+        return x

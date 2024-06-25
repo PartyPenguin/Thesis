@@ -5,7 +5,7 @@ from tqdm import tqdm
 from torch_geometric.data import Dataset as GeometricDataset
 from torch_geometric.data import Data
 from sapien.core.pysapien import PinocchioModel
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
@@ -24,33 +24,34 @@ def load_h5_data(data):
     return out
 
 
-def standardize(data, mean=None, std=None):
-    if mean is None:
-        mean = np.mean(data, axis=0)
-        # store the mean
-        np.save("mean.npy", mean)
-    if std is None:
-        std = np.std(data, axis=0)
-        # store the std
-        np.save("std.npy", std)
-    return (data - mean) / (std + 1e-7)
+def standardize(data: np.ndarray, scaler: StandardScaler = None) -> np.ndarray:
+    if scaler is None:
+        scaler = StandardScaler()
+        data = scaler.fit_transform(data)
+        joblib.dump(scaler, "standard_scaler.pkl")
+    else:
+        data = scaler.transform(data)
+
+    return data
 
 
-def normalize(data: np.ndarray, scaler=None, mean=None, std=None) -> np.ndarray:
+def normalize(
+    data: np.ndarray, scaler: MinMaxScaler = None, mean=None, std=None
+) -> np.ndarray:
     # Clip to remove outliers
-    if mean is None:
-        mean = np.mean(data, axis=0)
-        joblib.dump(mean, "mean.pkl")
-    if std is None:
-        std = np.std(data, axis=0)
-        joblib.dump(std, "std.pkl")
+    # if mean is None:
+    #     mean = np.mean(data, axis=0)
+    #     joblib.dump(mean, "mean.pkl")
+    # if std is None:
+    #     std = np.std(data, axis=0)
+    #     joblib.dump(std, "std.pkl")
 
-    data = np.clip(data, mean - 2 * std, mean + 2 * std)
+    # data = np.clip(data, mean - 2 * std, mean + 2 * std)
 
     if scaler is None:
-        scaler = MinMaxScaler(feature_range=(-1, 1))
+        scaler = MinMaxScaler(feature_range=(-1, 1), clip=True)
         data = scaler.fit_transform(data)
-        joblib.dump(scaler, "scaler.pkl")
+        joblib.dump(scaler, "norm_scaler.pkl")
     else:
         data = scaler.transform(data)
 
@@ -150,7 +151,7 @@ def transform_obs(obs):
         (
             joint_positions[..., None],
             joint_velocities[..., None],
-            # joint_se3_pose.reshape(joint_se3_pose.shape[0], 8, -1),
+            joint_se3_pose.reshape(joint_se3_pose.shape[0], 8, -1),
         ),
         axis=2,
     )
@@ -212,7 +213,7 @@ class GeometricManiSkill2Dataset(GeometricDataset):
                 np.full(len(trajectory["obs"]) - 1, eps["episode_id"])
             )
 
-        self.observations = np.vstack(self.observations)
+        self.observations = normalize(np.vstack(self.observations))
         self.observations = transform_obs(self.observations)
 
         self.actions = np.vstack(self.actions)
