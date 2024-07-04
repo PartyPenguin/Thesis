@@ -1,0 +1,1085 @@
+{
+  "env_info": {
+    "env_id": "PegInsertionSide-v0",
+    "max_episode_steps": null,
+    "env_kwargs": {
+      "obs_mode": "state",
+      "control_mode": "pd_joint_delta_pos",
+      "render_mode": "cameras"
+    }
+  },
+  "commit_info": {
+    "commit_id": "734e3dd97f74f5909eb67a649101674ff6f2440d",
+    "branch": "my_branch"
+  },
+  "episodes": [
+    {
+      "episode_id": 0,
+      "episode_seed": 486979249,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.5596877932548523,
+          0.06332901865243912,
+          -0.1226300448179245
+        ]
+      }
+    },
+    {
+      "episode_id": 1,
+      "episode_seed": 1,
+      "reset_kwargs": {
+        "seed": 1
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.22470499575138092,
+          -0.12847614288330078,
+          -0.05909009650349617
+        ]
+      }
+    },
+    {
+      "episode_id": 2,
+      "episode_seed": 2,
+      "reset_kwargs": {
+        "seed": 2
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.47797685861587524,
+          -0.05162276327610016,
+          -0.07626934349536896
+        ]
+      }
+    },
+    {
+      "episode_id": 3,
+      "episode_seed": 3,
+      "reset_kwargs": {
+        "seed": 3
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.3714503049850464,
+          0.0810699313879013,
+          -0.08132961392402649
+        ]
+      }
+    },
+    {
+      "episode_id": 4,
+      "episode_seed": 4,
+      "reset_kwargs": {
+        "seed": 4
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.40285658836364746,
+          -0.1108747124671936,
+          -0.12497930228710175
+        ]
+      }
+    },
+    {
+      "episode_id": 5,
+      "episode_seed": 5,
+      "reset_kwargs": {
+        "seed": 5
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.26088380813598633,
+          0.08927787840366364,
+          -0.08851045370101929
+        ]
+      }
+    },
+    {
+      "episode_id": 6,
+      "episode_seed": 6,
+      "reset_kwargs": {
+        "seed": 6
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.33562761545181274,
+          -0.05504550784826279,
+          -0.05488649010658264
+        ]
+      }
+    },
+    {
+      "episode_id": 7,
+      "episode_seed": 7,
+      "reset_kwargs": {
+        "seed": 7
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.380275696516037,
+          0.11192433536052704,
+          -0.06853386759757996
+        ]
+      }
+    },
+    {
+      "episode_id": 8,
+      "episode_seed": 8,
+      "reset_kwargs": {
+        "seed": 8
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.16285079717636108,
+          -0.08827610313892365,
+          -0.09688634425401688
+        ]
+      }
+    },
+    {
+      "episode_id": 9,
+      "episode_seed": 9,
+      "reset_kwargs": {
+        "seed": 9
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.3127579689025879,
+          -0.006020992994308472,
+          -0.034529998898506165
+        ]
+      }
+    },
+    {
+      "episode_id": 10,
+      "episode_seed": 2721498432,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.21010491251945496,
+          0.00804227963089943,
+          -0.07151737809181213
+        ]
+      }
+    },
+    {
+      "episode_id": 11,
+      "episode_seed": 1,
+      "reset_kwargs": {
+        "seed": 1
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.22442126274108887,
+          -0.1285352110862732,
+          -0.059051357209682465
+        ]
+      }
+    },
+    {
+      "episode_id": 12,
+      "episode_seed": 2,
+      "reset_kwargs": {
+        "seed": 2
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.21005049347877502,
+          -0.0119759701192379,
+          -0.07626666128635406
+        ]
+      }
+    },
+    {
+      "episode_id": 13,
+      "episode_seed": 3,
+      "reset_kwargs": {
+        "seed": 3
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.12950459122657776,
+          0.05768737196922302,
+          -0.08434393256902695
+        ]
+      }
+    },
+    {
+      "episode_id": 14,
+      "episode_seed": 4,
+      "reset_kwargs": {
+        "seed": 4
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.40465062856674194,
+          -0.1086602509021759,
+          -0.12497931718826294
+        ]
+      }
+    },
+    {
+      "episode_id": 15,
+      "episode_seed": 5,
+      "reset_kwargs": {
+        "seed": 5
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.2606924772262573,
+          0.08908373862504959,
+          -0.08851058036088943
+        ]
+      }
+    },
+    {
+      "episode_id": 16,
+      "episode_seed": 6,
+      "reset_kwargs": {
+        "seed": 6
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.3621155619621277,
+          -0.07129181176424026,
+          -0.054892413318157196
+        ]
+      }
+    },
+    {
+      "episode_id": 17,
+      "episode_seed": 7,
+      "reset_kwargs": {
+        "seed": 7
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.38139915466308594,
+          0.11189225316047668,
+          -0.06853391230106354
+        ]
+      }
+    },
+    {
+      "episode_id": 18,
+      "episode_seed": 8,
+      "reset_kwargs": {
+        "seed": 8
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.16290521621704102,
+          -0.08849497139453888,
+          -0.09688613563776016
+        ]
+      }
+    },
+    {
+      "episode_id": 19,
+      "episode_seed": 9,
+      "reset_kwargs": {
+        "seed": 9
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.30827635526657104,
+          -0.006867125630378723,
+          -0.03517751395702362
+        ]
+      }
+    },
+    {
+      "episode_id": 20,
+      "episode_seed": 2721498432,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.15215185284614563,
+          0.004033694043755531,
+          -0.05893978103995323
+        ]
+      }
+    },
+    {
+      "episode_id": 21,
+      "episode_seed": 1,
+      "reset_kwargs": {
+        "seed": 1
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.22388513386249542,
+          -0.12845101952552795,
+          -0.059089940041303635
+        ]
+      }
+    },
+    {
+      "episode_id": 22,
+      "episode_seed": 2,
+      "reset_kwargs": {
+        "seed": 2
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          0.06838443875312805,
+          0.39340561628341675,
+          -0.00966382771730423
+        ]
+      }
+    },
+    {
+      "episode_id": 23,
+      "episode_seed": 3,
+      "reset_kwargs": {
+        "seed": 3
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.12097059190273285,
+          0.009279757738113403,
+          -0.08132949471473694
+        ]
+      }
+    },
+    {
+      "episode_id": 24,
+      "episode_seed": 4,
+      "reset_kwargs": {
+        "seed": 4
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.3561159074306488,
+          -0.12313814461231232,
+          -0.12497932463884354
+        ]
+      }
+    },
+    {
+      "episode_id": 25,
+      "episode_seed": 5,
+      "reset_kwargs": {
+        "seed": 5
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.2608838379383087,
+          0.08927789330482483,
+          -0.08851046115159988
+        ]
+      }
+    },
+    {
+      "episode_id": 26,
+      "episode_seed": 6,
+      "reset_kwargs": {
+        "seed": 6
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.14957597851753235,
+          -0.09169912338256836,
+          -0.05488646775484085
+        ]
+      }
+    },
+    {
+      "episode_id": 27,
+      "episode_seed": 7,
+      "reset_kwargs": {
+        "seed": 7
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.10021829605102539,
+          0.1172315925359726,
+          -0.09133309870958328
+        ]
+      }
+    },
+    {
+      "episode_id": 28,
+      "episode_seed": 8,
+      "reset_kwargs": {
+        "seed": 8
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.16306859254837036,
+          -0.08852685987949371,
+          -0.09688833355903625
+        ]
+      }
+    },
+    {
+      "episode_id": 29,
+      "episode_seed": 9,
+      "reset_kwargs": {
+        "seed": 9
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.30824777483940125,
+          -0.00689166784286499,
+          -0.035170458257198334
+        ]
+      }
+    },
+    {
+      "episode_id": 30,
+      "episode_seed": 2721498432,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.1610436886548996,
+          -0.0006006918847560883,
+          -0.06053301692008972
+        ]
+      }
+    },
+    {
+      "episode_id": 31,
+      "episode_seed": 1,
+      "reset_kwargs": {
+        "seed": 1
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.22376485168933868,
+          -0.12910196185112,
+          -0.05907173454761505
+        ]
+      }
+    },
+    {
+      "episode_id": 32,
+      "episode_seed": 2,
+      "reset_kwargs": {
+        "seed": 2
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.0988730937242508,
+          -0.021904917433857918,
+          -0.030027568340301514
+        ]
+      }
+    },
+    {
+      "episode_id": 33,
+      "episode_seed": 3,
+      "reset_kwargs": {
+        "seed": 3
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.3390786647796631,
+          0.055179134011268616,
+          -0.08119774609804153
+        ]
+      }
+    },
+    {
+      "episode_id": 34,
+      "episode_seed": 4,
+      "reset_kwargs": {
+        "seed": 4
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.4221770763397217,
+          -0.12716811895370483,
+          -0.12497931718826294
+        ]
+      }
+    },
+    {
+      "episode_id": 35,
+      "episode_seed": 5,
+      "reset_kwargs": {
+        "seed": 5
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.2602817714214325,
+          0.08838779479265213,
+          -0.08849099278450012
+        ]
+      }
+    },
+    {
+      "episode_id": 36,
+      "episode_seed": 6,
+      "reset_kwargs": {
+        "seed": 6
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.28867122530937195,
+          -0.09666480123996735,
+          -0.05488649755716324
+        ]
+      }
+    },
+    {
+      "episode_id": 37,
+      "episode_seed": 7,
+      "reset_kwargs": {
+        "seed": 7
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.38191065192222595,
+          0.10766278207302094,
+          -0.06853391230106354
+        ]
+      }
+    },
+    {
+      "episode_id": 38,
+      "episode_seed": 8,
+      "reset_kwargs": {
+        "seed": 8
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.16330131888389587,
+          -0.08895469456911087,
+          -0.09688608348369598
+        ]
+      }
+    },
+    {
+      "episode_id": 39,
+      "episode_seed": 9,
+      "reset_kwargs": {
+        "seed": 9
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.30826863646507263,
+          -0.006999872624874115,
+          -0.03518318384885788
+        ]
+      }
+    },
+    {
+      "episode_id": 40,
+      "episode_seed": 2721498432,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.10362648218870163,
+          0.008354458957910538,
+          -0.060447752475738525
+        ]
+      }
+    },
+    {
+      "episode_id": 41,
+      "episode_seed": 1,
+      "reset_kwargs": {
+        "seed": 1
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.07329095900058746,
+          -0.0033696815371513367,
+          0.0025699585676193237
+        ]
+      }
+    },
+    {
+      "episode_id": 42,
+      "episode_seed": 2,
+      "reset_kwargs": {
+        "seed": 2
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.47794032096862793,
+          -0.051586925983428955,
+          -0.07626666873693466
+        ]
+      }
+    },
+    {
+      "episode_id": 43,
+      "episode_seed": 3,
+      "reset_kwargs": {
+        "seed": 3
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.09215140342712402,
+          -0.17148466408252716,
+          -0.08132963627576828
+        ]
+      }
+    },
+    {
+      "episode_id": 44,
+      "episode_seed": 4,
+      "reset_kwargs": {
+        "seed": 4
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.4044990539550781,
+          -0.10835904628038406,
+          -0.12497930228710175
+        ]
+      }
+    },
+    {
+      "episode_id": 45,
+      "episode_seed": 5,
+      "reset_kwargs": {
+        "seed": 5
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.2607298493385315,
+          0.08849925547838211,
+          -0.08851499110460281
+        ]
+      }
+    },
+    {
+      "episode_id": 46,
+      "episode_seed": 6,
+      "reset_kwargs": {
+        "seed": 6
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.311784565448761,
+          -0.049578532576560974,
+          -0.054867424070835114
+        ]
+      }
+    },
+    {
+      "episode_id": 47,
+      "episode_seed": 7,
+      "reset_kwargs": {
+        "seed": 7
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.38046517968177795,
+          0.11175888776779175,
+          -0.0685352310538292
+        ]
+      }
+    },
+    {
+      "episode_id": 48,
+      "episode_seed": 8,
+      "reset_kwargs": {
+        "seed": 8
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.16225990653038025,
+          -0.08806342631578445,
+          -0.09642783552408218
+        ]
+      }
+    },
+    {
+      "episode_id": 49,
+      "episode_seed": 9,
+      "reset_kwargs": {
+        "seed": 9
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.024325966835021973,
+          -0.0030972808599472046,
+          -0.002957157790660858
+        ]
+      }
+    },
+    {
+      "episode_id": 50,
+      "episode_seed": 2721498432,
+      "reset_kwargs": {},
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.10015827417373657,
+          -0.01640336588025093,
+          -0.060532405972480774
+        ]
+      }
+    },
+    {
+      "episode_id": 51,
+      "episode_seed": 1,
+      "reset_kwargs": {
+        "seed": 1
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.22510379552841187,
+          -0.12864285707473755,
+          -0.05909007787704468
+        ]
+      }
+    },
+    {
+      "episode_id": 52,
+      "episode_seed": 2,
+      "reset_kwargs": {
+        "seed": 2
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.47558069229125977,
+          -0.04880056530237198,
+          -0.07626666128635406
+        ]
+      }
+    },
+    {
+      "episode_id": 53,
+      "episode_seed": 3,
+      "reset_kwargs": {
+        "seed": 3
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.36837729811668396,
+          0.08135959506034851,
+          -0.0813295990228653
+        ]
+      }
+    },
+    {
+      "episode_id": 54,
+      "episode_seed": 4,
+      "reset_kwargs": {
+        "seed": 4
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.4267844259738922,
+          -0.1268288791179657,
+          -0.12498223781585693
+        ]
+      }
+    },
+    {
+      "episode_id": 55,
+      "episode_seed": 5,
+      "reset_kwargs": {
+        "seed": 5
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.09468165040016174,
+          0.0012070536613464355,
+          -0.030908942222595215
+        ]
+      }
+    },
+    {
+      "episode_id": 56,
+      "episode_seed": 6,
+      "reset_kwargs": {
+        "seed": 6
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.3294159471988678,
+          -0.05940953269600868,
+          -0.05488647520542145
+        ]
+      }
+    },
+    {
+      "episode_id": 57,
+      "episode_seed": 7,
+      "reset_kwargs": {
+        "seed": 7
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.38042962551116943,
+          0.1118348091840744,
+          -0.068532794713974
+        ]
+      }
+    },
+    {
+      "episode_id": 58,
+      "episode_seed": 8,
+      "reset_kwargs": {
+        "seed": 8
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.16168738901615143,
+          -0.09161338955163956,
+          -0.09347078204154968
+        ]
+      }
+    },
+    {
+      "episode_id": 59,
+      "episode_seed": 9,
+      "reset_kwargs": {
+        "seed": 9
+      },
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 200,
+      "info": {
+        "elapsed_steps": 200,
+        "success": false,
+        "peg_head_pos_at_hole": [
+          -0.3082887530326843,
+          -0.006874047219753265,
+          -0.03517751395702362
+        ]
+      }
+    }
+  ]
+}

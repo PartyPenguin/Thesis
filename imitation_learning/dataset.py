@@ -3,8 +3,13 @@ import numpy as np
 import torch as th
 from tqdm import tqdm
 from torch_geometric.data import Dataset as GeometricDataset
-from torch_geometric.data import Data
+from torch_geometric.data import Data, HeteroData
+from torch_geometric.utils import to_networkx
+import networkx as nx
 from sapien.core.pysapien import PinocchioModel
+from mani_skill2.utils.sapien_utils import vectorize_pose
+from mani_skill2.envs.sapien_env import BaseEnv
+import torch_geometric.transforms as T
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -58,37 +63,290 @@ def normalize(
     return data
 
 
+def fourier_encode(data: th.Tensor) -> th.Tensor:
+    def multiscale(x):
+        scales = [-1, 0, 1, 2, 3, 4, 5, 6]
+        return th.hstack(
+            [(x.reshape(-1, 1) / pow(3.0, i)).reshape(x.shape[0], -1) for i in scales]
+        )
+
+    multiscale_data = multiscale(data)
+    sin_features = th.sin(multiscale_data)
+    cos_features = th.cos(multiscale_data)
+
+    features = th.hstack((sin_features, cos_features)).reshape(data.shape[0], -1)
+    return features
+
+
+def draw_hetero_graph(data):
+    import matplotlib.pyplot as plt
+    import networkx as nx
+    from torch_geometric.utils import to_networkx
+    from pyvis.network import Network
+
+    graph = to_networkx(data, to_undirected=False)
+
+    # Create a pyvis network
+    net = Network(notebook=True)
+
+    # Define colors for nodes and edges
+    node_type_colors = {
+        "joint": "#4599C3",
+        "tcp": "#ED8546",
+        "goal": "#70B349",
+        "object": "#8B4D9E",
+    }
+
+    edge_type_colors = {
+        ("joint", "joint_connects_joint", "joint"): "#8B4D9E",
+        ("joint", "joint_follows_joint", "joint"): "#DFB825",
+        ("tcp", "tcp_to_joint", "joint"): "#70B349",
+        ("tcp", "tcp_follows_tcp", "tcp"): "#DB5C64",
+        ("goal", "goal_to_tcp", "tcp"): "#4599C3",
+        ("goal", "goal_follows_goal", "goal"): "#ED8546",
+        ("object", "object_to_tcp", "tcp"): "#DB5C64",
+        ("object", "object_follows_object", "object"): "#8B4D9E",
+        ("object", "object_to_goal", "goal"): "#70B349",
+    }
+
+    # Add nodes to the pyvis network
+    for node, attrs in graph.nodes(data=True):
+        node_type = attrs["type"]
+        color = node_type_colors.get(
+            node_type, "#000000"
+        )  # default to black if type not found
+        net.add_node(node, label=f"{node_type[:1].upper()}{node}", color=color)
+
+    # Add edges to the pyvis network
+    for from_node, to_node, attrs in graph.edges(data=True):
+        edge_type = attrs["type"]
+        color = edge_type_colors.get(
+            edge_type, "#000000"
+        )  # default to black if type not found
+        net.add_edge(from_node, to_node, color=color)
+
+    net.show_buttons(filter_=["physics"])
+    # Show the network
+    net.show("hetero_graph.html")
+
+
+def create_heterogeneous_graph(data: th.Tensor):
+    """
+    Create a heterogeneous graph from the data. The graph should contain the following node types:
+    - Joint nodes
+    - Object nodes
+    """
+    time_step = data.shape[0]
+    nodes = data.shape[1]
+    graph = HeteroData()
+
+    # ================== Create the joint nodes ==================
+
+    # Create the joint nodes (time_step * nodes, 16)
+    joint_nodes = th.reshape(data[:, :, :16], (time_step * nodes, -1))
+    graph["joint"].x = fourier_encode(joint_nodes)
+
+    # Create the TCP node (time_step, 7)
+    tcp_node = th.reshape(data[:, 0, 16:23], (time_step, -1))
+    graph["tcp"].x = fourier_encode(tcp_node)
+
+    # Create the goal node (time_step, 3)
+    goal_node = th.reshape(data[:, 0, 23:26], (time_step, -1))
+    graph["goal"].x = fourier_encode(goal_node)
+
+    # Create the object node (time_step, 7)
+    object_node = th.reshape(data[:, 0, 29:36], (time_step, -1))
+    graph["object"].x = fourier_encode(object_node)
+
+    # ================== Create the edges ==================
+
+    # Joint Edges
+    # ----------------
+
+    # Create the kinematic chain edges between the joints of the robot for each time step
+    link_edge_index = [
+        (i + (nodes * j), i + (nodes * j) + 1)
+        for j in range(time_step)
+        for i in range(nodes - 1)
+    ]
+
+    # Create the temporal edges between the current time step and the previous time step for each joint
+    temporal_link_edge_index = [
+        (i, i + (nodes * j) + nodes) for j in range(time_step - 1) for i in range(nodes)
+    ]
+
+    # Edge attributes
+
+    # Edge attributes for the SE3 joint distances between the joints. Only applicable for the kinematic chain edges
+    se3_joint_dist = th.linalg.norm(th.diff(data[:, :, 2:5], axis=1), axis=2)
+    se3_joint_dist_reshape = se3_joint_dist.reshape(-1, 1)
+
+    graph["joint", "joint_connects_joint", "joint"].edge_index = (
+        th.tensor(link_edge_index).t().contiguous()
+    )
+    graph["joint", "joint_follows_joint", "joint"].edge_index = (
+        (th.tensor(temporal_link_edge_index).t().contiguous())
+        if time_step > 1
+        else None
+    )
+
+    graph["joint", "joint_connects_joint", "joint"].edge_attr = fourier_encode(
+        se3_joint_dist_reshape
+    )
+
+    # TCP Edges
+    # ----------------
+
+    # Create the edges between the joints and the TCP at each time step
+    tcp_edge_index = [
+        (j, i + (nodes * j)) for j in range(time_step) for i in range(nodes)
+    ]
+
+    # Create the temporal edges between the TCP and the previous TCP
+    temporal_tcp_edge_index = [(0, i + 1) for i in range(time_step - 1)]
+
+    # Edge attributes
+    # Edge attributes for the SE3 joint distances between the joints and the TCP. Only applicable for the tcp edges
+    se3_tcp_dist = th.linalg.norm(data[:, :, 2:5] - data[:, :, 16:19], axis=2)
+    se3_tcp_dist_reshape = se3_tcp_dist.reshape(-1, 1)
+
+    graph["tcp", "tcp_to_joint", "joint"].edge_index = (
+        th.tensor(tcp_edge_index).t().contiguous()
+    )
+    graph["tcp", "tcp_follows_tcp", "tcp"].edge_index = (
+        (th.tensor(temporal_tcp_edge_index).t().contiguous()) if time_step > 1 else None
+    )
+
+    graph["tcp", "tcp_to_joint", "joint"].edge_attr = fourier_encode(
+        se3_tcp_dist_reshape
+    )
+
+    # Goal Edges
+    # ----------------
+
+    # Create the edges between the tcp and the goal at each time step
+    goal_edge_index = [(i, i) for i in range(time_step)]
+
+    # Create the temporal edges between the goal and the previous goals
+    temporal_goal_edge_index = [(0, i + 1) for i in range(time_step - 1)]
+
+    # Edge attributes
+    tcp_to_goal_dist = th.linalg.norm(data[:, 0, 26:29], axis=1)
+    tcp_to_goal_dist_reshape = tcp_to_goal_dist.reshape(-1, 1)
+
+    graph["goal", "goal_to_tcp", "tcp"].edge_index = (
+        th.tensor(goal_edge_index).t().contiguous()
+    )
+    graph["goal", "goal_follows_goal", "goal"].edge_index = (
+        (th.tensor(temporal_goal_edge_index).t().contiguous())
+        if time_step > 1
+        else None
+    )
+
+    graph["goal", "goal_to_tcp", "tcp"].edge_attr = fourier_encode(
+        tcp_to_goal_dist_reshape
+    )
+    # Object Edges
+    # ----------------
+
+    # Create the edges between the tcp and the object at each time step
+    object_edge_index = [(i, i) for i in range(time_step)]
+
+    # Create the temporal edges between the object and the previous objects
+    temporal_object_edge_index = [(0, i + 1) for i in range(time_step - 1)]
+
+    # Create the edges between the obkect and the goal at each time step
+    object_goal_edge_index = [(i, i) for i in range(time_step)]
+
+    # Edge attributes
+    tcp_to_obj_dist = th.linalg.norm(data[:, 0, 36:39], axis=1)
+    tcp_to_obj_dist_reshape = tcp_to_obj_dist.reshape(-1, 1)
+
+    obj_to_goal_dist = th.linalg.norm(data[:, 0, 39:42], axis=1)
+    obj_to_goal_dist_reshape = obj_to_goal_dist.reshape(-1, 1)
+
+    graph["object", "object_to_tcp", "tcp"].edge_index = (
+        th.tensor(object_edge_index).t().contiguous()
+    )
+    graph["object", "object_to_goal", "goal"].edge_index = (
+        th.tensor(object_goal_edge_index).t().contiguous()
+    )
+    graph["object", "object_follows_object", "object"].edge_index = (
+        (th.tensor(temporal_object_edge_index).t().contiguous())
+        if time_step > 1
+        else None
+    )
+
+    graph["object", "object_to_tcp", "tcp"].edge_attr = fourier_encode(
+        tcp_to_obj_dist_reshape
+    )
+    graph["object", "object_to_goal", "goal"].edge_attr = fourier_encode(
+        obj_to_goal_dist_reshape
+    )
+
+    graph = T.ToUndirected()(graph)
+
+    # draw_hetero_graph(graph)
+
+    return graph
+
+
 def create_graph(data):
     time_step = data.shape[0]
     nodes = data.shape[1]
 
     # Initialize the edge index list
+    # Create kinematic chain edges between the joints of the robot for each time step
     edge_index = [
         (i + (nodes * j), i + (nodes * j) + 1)
-        for i in range(nodes - 1)
         for j in range(time_step)
+        for i in range(nodes - 1)
     ]
 
+    # Create temporal edges between the current time step and the previous time step for each joint
     edge_index.extend(
         [
-            (i + (nodes * j), i + (nodes * j) + nodes)
-            for i in range(nodes)
+            (i, i + (nodes * j) + nodes)
             for j in range(time_step - 1)
+            for i in range(nodes)
         ]
     )
+
+    # Edge attributes for the SE3 joint distances between the joints. Only applicable for the kinematic chain edges
+    se3_joint_dist = th.linalg.norm(th.diff(data[:, :, 2:5], axis=1), axis=2)
+    se3_joint_dist_reshape = se3_joint_dist.reshape(-1, 1)
+
+    edge_attr = th.tensor(se3_joint_dist_reshape, dtype=th.float32)
+
+    # Edge attributes for the temporal edges
+    temporal_edge_attr = th.tensor(
+        np.zeros((nodes * (time_step - 1), 1)), dtype=th.float32
+    ).to(edge_attr.device)
+
+    # Concatenate the edge attributes
+    edge_attr = th.cat([edge_attr, temporal_edge_attr], dim=0)
 
     data = th.reshape(data, (time_step * nodes, -1))
     # Convert to tensor and make the graph undirected
     edge_index = th.tensor(edge_index, dtype=th.long).t().contiguous()
     edge_index = th.cat([edge_index, edge_index[[1, 0]]], dim=-1)
+    # Make edge_attr undirected
+    edge_attr = th.cat([edge_attr, edge_attr], dim=0)
 
     # Create the graph
-    graph = Data(x=data, edge_index=edge_index)
+    graph = Data(x=data, edge_index=edge_index, edge_attr=edge_attr)
+
+    # import networkx as nx
+
+    # Visualize the graph
+    # g = to_networkx(graph)
+    # nx.draw(g, with_labels=True)
+    # plt.show()
 
     return graph
 
 
-def transform_obs(obs):
+def transform_obs(obs, pinocchio_model: PinocchioModel):
     """
     The observations that are returned by the environment need to be transformed into a format that can be used by the graph neural network.
     We want the one dimensional observations to be transformed into a NxQxD format where N is the number of observations,
@@ -115,49 +373,62 @@ def transform_obs(obs):
         plt.suptitle(title, y=1.02)
         plt.show()
 
+    def compute_joint_se3_pose(joint_positions, base_pose):
+        joint_se3_pose = []
+        for i in range(joint_positions.shape[0]):
+            pinocchio_model.compute_forward_kinematics(joint_positions[i])
+            joint_se3_pose.append(
+                np.asarray(
+                    [
+                        vectorize_pose(pinocchio_model.get_link_pose(j)) + base_pose[i]
+                        for j in range(joint_positions.shape[1] - 1)
+                    ]
+                ).flatten()
+            )
+
+        return np.array(joint_se3_pose)
+
     # Extract joint features from observations
-    joint_positions = obs[:, :8]  # Joint property | Joint positions 8 dimensions
+    joint_positions = obs[:, :9]  # Joint property | Joint positions 8 dimensions
     joint_velocities = obs[:, 9:17]  # Joint property | Joint velocities 8 dimensions
-    joint_se3_pose = obs[:, 39:95]  # Joint property | Joint SE3 pose 63 dimensions
 
     # Extract context features from observations
     base_pose = obs[:, 18:25]  # Context | Base pose 7 dimensions
     tcp_pose = obs[:, 25:32]  # Context | TCP pose 7 dimensions
-    goal_position = obs[:, 32:39]  # Context | Goal position 7 dimensions
-    tcp_to_goal_position = obs[
-        :, 102:105
-    ]  # Context | TCP to goal position 3 dimensions
+    goal_position = obs[:, 32:35]  # Context | Goal position 7 dimensions
+    tcp_to_goal_position = obs[:, 35:38]  # Context | TCP to goal position 3 dimensions
+    obj_pose = obs[:, 38:45]  # Context | Object pose 7 dimensions
+    tcp_to_obj_pos = obs[:, 45:48]  # Context | TCP to object position 3 dimensions
+    obj_to_goal_pos = obs[:, 48:51]  # Context | Object to goal position 3 dimensions
+    # peg_pose = obs[:, 33:40]  # Context | Peg pose 7 dimensions
+    # peg_half_size = obs[:, 40:43]  # Context | Peg half size 3 dimensions
+    # box_hole_pose = obs[:, 43:50]  # Context | Box hole pose 7 dimensions
+    # box_hole_radius = obs[:, 50:51]  # Context | Box hole radius 1 dimension
 
-    # Plot histograms of the features
-    # plot_histograms(
-    #     joint_positions, [f"Joint Pos {i}" for i in range(8)], "Joint Positions"
-    # )
-    # plot_histograms(
-    #     joint_velocities, [f"Joint Vel {i}" for i in range(8)], "Joint Velocities"
-    # )
-    # plot_histograms(base_pose, [f"Base Pose {i}" for i in range(7)], "Base Pose")
-    # plot_histograms(tcp_pose, [f"TCP Pose {i}" for i in range(7)], "TCP Pose")
-    # plot_histograms(goal_position, [f"Goal Pos {i}" for i in range(7)], "Goal Position")
-    # plot_histograms(
-    #     tcp_to_goal_position,
-    #     [f"TCP to Goal Pos {i}" for i in range(3)],
-    #     "TCP to Goal Position",
-    # )
+    joint_se3_pose = compute_joint_se3_pose(joint_positions, base_pose)
+
+    joint_se3_reshape = joint_se3_pose.reshape(joint_se3_pose.shape[0], 8, -1)
 
     # Stack joint positions and velocities along a new axis to create joint features
     # This transforms the observations to a NxQxD format with N being the number of observations,
     # Q being the number of joints, and D being the number of dimensions for each joint.
     joint_features = np.concatenate(
-        (
-            joint_positions[..., None],
-            joint_velocities[..., None],
-            joint_se3_pose.reshape(joint_se3_pose.shape[0], 8, -1),
-        ),
+        (joint_positions[:, :-1, None], joint_velocities[..., None], joint_se3_reshape),
         axis=2,
     )
 
     # Concatenate all context features into a single array
-    context_info = np.hstack([base_pose, tcp_pose, goal_position, tcp_to_goal_position])
+    context_info = np.hstack(
+        [
+            base_pose,
+            tcp_pose,
+            goal_position,
+            tcp_to_goal_position,
+            obj_pose,
+            tcp_to_obj_pos,
+            obj_to_goal_pos,
+        ]
+    )
 
     # Repeat the context information for each joint and reshape to match the shape of joint_features
     context_features = np.repeat(
@@ -175,6 +446,7 @@ class GeometricManiSkill2Dataset(GeometricDataset):
         self,
         dataset_file: str,
         root,
+        env: BaseEnv,
         load_count=-1,
         transform=None,
         pre_transform=None,
@@ -185,6 +457,7 @@ class GeometricManiSkill2Dataset(GeometricDataset):
         # quick start tutorial
         from mani_skill2.utils.io_utils import load_json
 
+        self.pinocchio_model = env.agent.robot.create_pinocchio_model()
         self.data = h5py.File(dataset_file, "r")
         json_path = dataset_file.replace(".h5", ".json")
         self.json_data = load_json(json_path)
@@ -213,8 +486,8 @@ class GeometricManiSkill2Dataset(GeometricDataset):
                 np.full(len(trajectory["obs"]) - 1, eps["episode_id"])
             )
 
-        self.observations = normalize(np.vstack(self.observations))
-        self.observations = transform_obs(self.observations)
+        self.observations = np.vstack(self.observations)
+        self.observations = transform_obs(self.observations, self.pinocchio_model)
 
         self.actions = np.vstack(self.actions)
         self.episode_map = np.hstack(self.episode_map)
@@ -257,7 +530,7 @@ class GeometricManiSkill2Dataset(GeometricDataset):
             )
 
         # Return the observation tensor and the action for the current index
-        return obs, action
+        return create_heterogeneous_graph(obs), obs, action
 
-    def close(self):
+    def close_h5(self):
         self.data.close()
