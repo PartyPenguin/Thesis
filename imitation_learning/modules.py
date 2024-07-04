@@ -65,6 +65,37 @@ class GCNPolicy(nn.Module):
 
 
 class GATPolicy(nn.Module):
+    def __init__(self, obs_dims, act_dims):
+        super().__init__()
+
+        # Define the GAT layers
+        self.gat_conv1 = GATConv(obs_dims, 64, heads=8, edge_dim=1, dropout=0.3)
+        self.gat_conv2 = GATConv(64 * 8, 64, heads=8, edge_dim=1, dropout=0.3)
+        self.gat_conv3 = GATConv(64 * 8, 64, heads=8, edge_dim=1, dropout=0.3)
+
+        # Define the linear layer
+        self.lin = Linear(64 * 8, act_dims)
+
+    def forward(self, x, edge_index, edge_attr, batch):
+
+        # Apply the GAT layers
+        x = self.gat_conv1(x, edge_index, edge_attr).relu()
+        x = self.gat_conv2(x, edge_index, edge_attr).relu()
+        x = self.gat_conv3(x, edge_index, edge_attr).relu()
+
+        # Apply the linear layer
+        x = self.lin(x)
+
+        # Apply the tanh activation function because the actions are in the range [-1, 1]
+        x = th.tanh(x)
+
+        # Apply global mean pooling
+        x = global_mean_pool(x, batch)
+
+        return x
+
+
+class HGATPolicy(nn.Module):
     def __init__(self, hidden_dim, act_dims):
         super().__init__()
 
@@ -72,18 +103,21 @@ class GATPolicy(nn.Module):
         self.gat_conv1 = GATConv(
             in_channels=(-1, -1),
             out_channels=64,
+            heads=8,
             edge_dim=-1,
             add_self_loops=False,
         )
         self.gat_conv2 = GATConv(
             in_channels=(-1, -1),
             out_channels=64,
+            heads=8,
             edge_dim=-1,
             add_self_loops=False,
         )
         self.gat_conv3 = GATConv(
             in_channels=(-1, -1),
             out_channels=64,
+            heads=8,
             edge_dim=-1,
             add_self_loops=False,
         )
@@ -101,11 +135,10 @@ class GATPolicy(nn.Module):
         # Apply the linear layer
         x = self.lin(x)
 
-        # Apply global mean pooling
-        x = self.global_pool(x, batch)
-
         # Apply the tanh activation function because the actions are in the range [-1, 1]
         x = th.tanh(x)
+        # Apply global mean pooling
+        x = self.global_pool(x, batch)
 
         return x
 

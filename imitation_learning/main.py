@@ -63,7 +63,7 @@ config = {
     "num_workers": 4,
     "lr": 1e-3,
     "seed": 42,
-    "log_dir": "logs/with_reg",
+    "log_dir": "logs/with_l2reg",
     "env_id": "PickCube-v0",
     "demo_path": "imitation_learning/datasets/PickCube/trajectory.state.pd_joint_delta_pos.h5",
     "iterations": 30000,
@@ -109,15 +109,15 @@ def main():
     tmp_graph = Batch.from_data_list([tmp_graph])
     # create our policy
     policy = GATPolicy(obs.shape[2], actions.shape[0])
-    policy = to_hetero(policy, tmp_graph.metadata(), aggr="mean")
+    # policy = to_hetero(policy, tmp_graph.metadata(), aggr="mean")
 
-    with th.no_grad():
-        x = policy(
-            tmp_graph.x_dict,
-            tmp_graph.edge_index_dict,
-            tmp_graph.edge_attr_dict,
-            tmp_graph.batch_dict,
-        )
+    # with th.no_grad():
+    #     x = policy(
+    #         tmp_graph.x_dict,
+    #         tmp_graph.edge_index_dict,
+    #         tmp_graph.edge_attr_dict,
+    #         tmp_graph.batch_dict,
+    #     )
 
     # move model to gpu if possible
     policy = policy.to(device)
@@ -198,9 +198,7 @@ def main():
         # )
         # graph = Batch.from_data_list(graph_list).to(device)
 
-        pred_actions = policy(
-            graph.x_dict, graph.edge_index_dict, graph.edge_attr_dict, graph.batch_dict
-        )
+        pred_actions = policy(graph.x, graph.edge_index, graph.edge_attr, graph.batch)
 
         q_pos = obs[:, -1, :, 0]
         q_pos = q_pos.float()
@@ -237,18 +235,18 @@ def main():
             obs = th.tensor(obs, device=device).float().unsqueeze(0)
             # create batched graph
             graph_list = (
-                [create_heterogeneous_graph(obs[i]) for i in range(obs.shape[0])]
+                [create_graph(obs[i]) for i in range(obs.shape[0])]
                 if obs.shape[0] != 1
-                else [create_heterogeneous_graph(obs.squeeze(0))]
+                else [create_graph(obs.squeeze(0))]
             )
             graph = Batch.from_data_list(graph_list).to(device)
             with th.no_grad():
                 action = (
                     policy(
-                        graph.x_dict,
-                        graph.edge_index_dict,
-                        graph.edge_attr_dict,
-                        graph.batch_dict,
+                        graph.x,
+                        graph.edge_index,
+                        graph.edge_attr,
+                        graph.batch,
                     )
                     .squeeze()
                     .detach()
@@ -266,7 +264,7 @@ def main():
         return success_rate
 
     writer = SummaryWriter(config["log_dir"])
-    optim = th.optim.Adam(policy.parameters(), lr=config["lr"])
+    optim = th.optim.Adam(policy.parameters(), lr=config["lr"], weight_decay=1e-5)
     best_epoch_loss = np.inf
     epoch = 0
     steps = 0

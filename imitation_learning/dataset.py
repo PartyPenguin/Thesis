@@ -143,20 +143,20 @@ def create_heterogeneous_graph(data: th.Tensor):
     # ================== Create the joint nodes ==================
 
     # Create the joint nodes (time_step * nodes, 16)
-    joint_nodes = th.reshape(data[:, :, :16], (time_step * nodes, -1))
+    joint_nodes = th.reshape(data, (time_step * nodes, -1))
     graph["joint"].x = fourier_encode(joint_nodes)
 
     # Create the TCP node (time_step, 7)
-    tcp_node = th.reshape(data[:, 0, 16:23], (time_step, -1))
-    graph["tcp"].x = fourier_encode(tcp_node)
+    # tcp_node = th.reshape(data[:, 0, 16:23], (time_step, -1))
+    # graph["tcp"].x = fourier_encode(tcp_node)
 
     # Create the goal node (time_step, 3)
-    goal_node = th.reshape(data[:, 0, 23:26], (time_step, -1))
-    graph["goal"].x = fourier_encode(goal_node)
+    # goal_node = th.reshape(data[:, 0, 23:26], (time_step, -1))
+    # graph["goal"].x = fourier_encode(goal_node)
 
-    # Create the object node (time_step, 7)
-    object_node = th.reshape(data[:, 0, 29:36], (time_step, -1))
-    graph["object"].x = fourier_encode(object_node)
+    # # Create the object node (time_step, 7)
+    # object_node = th.reshape(data[:, 0, 29:36], (time_step, -1))
+    # graph["object"].x = fourier_encode(object_node)
 
     # ================== Create the edges ==================
 
@@ -194,63 +194,74 @@ def create_heterogeneous_graph(data: th.Tensor):
         se3_joint_dist_reshape
     )
 
-    # TCP Edges
-    # ----------------
+    # # TCP Edges
+    # # ----------------
 
-    # Create the edges between the joints and the TCP at each time step
-    tcp_edge_index = [
-        (j, i + (nodes * j)) for j in range(time_step) for i in range(nodes)
-    ]
+    # # Create the edges between the joints and the TCP at each time step
+    # tcp_edge_index = [
+    #     (j, i + (nodes * j)) for j in range(time_step) for i in range(nodes)
+    # ]
 
-    # Create the temporal edges between the TCP and the previous TCP
-    temporal_tcp_edge_index = [(0, i + 1) for i in range(time_step - 1)]
+    # # Create the temporal edges between the TCP and the previous TCP
+    # temporal_tcp_edge_index = [(0, i + 1) for i in range(time_step - 1)]
 
-    # Edge attributes
-    # Edge attributes for the SE3 joint distances between the joints and the TCP. Only applicable for the tcp edges
-    se3_tcp_dist = th.linalg.norm(data[:, :, 2:5] - data[:, :, 16:19], axis=2)
-    se3_tcp_dist_reshape = se3_tcp_dist.reshape(-1, 1)
+    # # Edge attributes
+    # # Edge attributes for the SE3 joint distances between the joints and the TCP. Only applicable for the tcp edges
+    # se3_tcp_dist = th.linalg.norm(data[:, :, 2:5] - data[:, :, 16:19], axis=2)
+    # se3_tcp_dist_reshape = se3_tcp_dist.reshape(-1, 1)
 
-    graph["tcp", "tcp_to_joint", "joint"].edge_index = (
-        th.tensor(tcp_edge_index).t().contiguous()
-    )
-    graph["tcp", "tcp_follows_tcp", "tcp"].edge_index = (
-        (th.tensor(temporal_tcp_edge_index).t().contiguous()) if time_step > 1 else None
-    )
+    # graph["tcp", "tcp_to_joint", "joint"].edge_index = (
+    #     th.tensor(tcp_edge_index).t().contiguous()
+    # )
+    # graph["tcp", "tcp_follows_tcp", "tcp"].edge_index = (
+    #     (th.tensor(temporal_tcp_edge_index).t().contiguous()) if time_step > 1 else None
+    # )
 
-    graph["tcp", "tcp_to_joint", "joint"].edge_attr = fourier_encode(
-        se3_tcp_dist_reshape
-    )
+    # graph["tcp", "tcp_to_joint", "joint"].edge_attr = fourier_encode(
+    #     se3_tcp_dist_reshape
+    # )
 
     # Goal Edges
     # ----------------
 
-    # Create the edges between the tcp and the goal at each time step
-    goal_edge_index = [(i, i) for i in range(time_step)]
+    # Create the edges between the nodes and the goal at each time step
+    goal_edge_index = [
+        (j, i + (nodes * j)) for j in range(time_step) for i in range(nodes)
+    ]
 
     # Create the temporal edges between the goal and the previous goals
     temporal_goal_edge_index = [(0, i + 1) for i in range(time_step - 1)]
 
     # Edge attributes
-    tcp_to_goal_dist = th.linalg.norm(data[:, 0, 26:29], axis=1)
+    tcp_to_goal_dist = (
+        th.linalg.norm(data[:, 0, 26:29], axis=1).unsqueeze(1).repeat(1, nodes)
+    )
     tcp_to_goal_dist_reshape = tcp_to_goal_dist.reshape(-1, 1)
 
-    graph["goal", "goal_to_tcp", "tcp"].edge_index = (
-        th.tensor(goal_edge_index).t().contiguous()
-    )
-    graph["goal", "goal_follows_goal", "goal"].edge_index = (
-        (th.tensor(temporal_goal_edge_index).t().contiguous())
-        if time_step > 1
-        else None
-    )
+    # graph["goal", "goal_to_tcp", "tcp"].edge_index = (
+    #     th.tensor(goal_edge_index).t().contiguous()
+    # )
 
-    graph["goal", "goal_to_tcp", "tcp"].edge_attr = fourier_encode(
-        tcp_to_goal_dist_reshape
-    )
+    # graph["goal", "goal_to_joint", "joint"].edge_index = (
+    #     th.tensor(goal_edge_index).t().contiguous()
+    # )
+
+    # graph["goal", "goal_follows_goal", "goal"].edge_index = (
+    #     (th.tensor(temporal_goal_edge_index).t().contiguous())
+    #     if time_step > 1
+    #     else None
+    # )
+
+    # graph["goal", "goal_to_joint", "joint"].edge_attr = fourier_encode(
+    #     tcp_to_goal_dist_reshape
+    # )
     # Object Edges
     # ----------------
 
-    # Create the edges between the tcp and the object at each time step
-    object_edge_index = [(i, i) for i in range(time_step)]
+    # Create the edges between the joints and the object at each time step
+    object_edge_index = [
+        (j, i + (nodes * j)) for j in range(time_step) for i in range(nodes)
+    ]
 
     # Create the temporal edges between the object and the previous objects
     temporal_object_edge_index = [(0, i + 1) for i in range(time_step - 1)]
@@ -259,30 +270,32 @@ def create_heterogeneous_graph(data: th.Tensor):
     object_goal_edge_index = [(i, i) for i in range(time_step)]
 
     # Edge attributes
-    tcp_to_obj_dist = th.linalg.norm(data[:, 0, 36:39], axis=1)
+    tcp_to_obj_dist = (
+        th.linalg.norm(data[:, 0, 36:39], axis=1).unsqueeze(1).repeat(1, nodes)
+    )
     tcp_to_obj_dist_reshape = tcp_to_obj_dist.reshape(-1, 1)
 
     obj_to_goal_dist = th.linalg.norm(data[:, 0, 39:42], axis=1)
     obj_to_goal_dist_reshape = obj_to_goal_dist.reshape(-1, 1)
 
-    graph["object", "object_to_tcp", "tcp"].edge_index = (
-        th.tensor(object_edge_index).t().contiguous()
-    )
-    graph["object", "object_to_goal", "goal"].edge_index = (
-        th.tensor(object_goal_edge_index).t().contiguous()
-    )
-    graph["object", "object_follows_object", "object"].edge_index = (
-        (th.tensor(temporal_object_edge_index).t().contiguous())
-        if time_step > 1
-        else None
-    )
+    # graph["object", "object_to_joint", "joint"].edge_index = (
+    #     th.tensor(object_edge_index).t().contiguous()
+    # )
+    # graph["object", "object_to_goal", "goal"].edge_index = (
+    #     th.tensor(object_goal_edge_index).t().contiguous()
+    # )
+    # graph["object", "object_follows_object", "object"].edge_index = (
+    #     (th.tensor(temporal_object_edge_index).t().contiguous())
+    #     if time_step > 1
+    #     else None
+    # )
 
-    graph["object", "object_to_tcp", "tcp"].edge_attr = fourier_encode(
-        tcp_to_obj_dist_reshape
-    )
-    graph["object", "object_to_goal", "goal"].edge_attr = fourier_encode(
-        obj_to_goal_dist_reshape
-    )
+    # graph["object", "object_to_joint", "joint"].edge_attr = fourier_encode(
+    #     tcp_to_obj_dist_reshape
+    # )
+    # graph["object", "object_to_goal", "goal"].edge_attr = fourier_encode(
+    #     obj_to_goal_dist_reshape
+    # )
 
     graph = T.ToUndirected()(graph)
 
@@ -530,7 +543,7 @@ class GeometricManiSkill2Dataset(GeometricDataset):
             )
 
         # Return the observation tensor and the action for the current index
-        return create_heterogeneous_graph(obs), obs, action
+        return create_graph(obs), obs, action
 
     def close_h5(self):
         self.data.close()
