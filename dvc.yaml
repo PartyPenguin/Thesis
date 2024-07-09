@@ -4,10 +4,10 @@ stages:
   prepare:
     cmd: python main.py
     deps:
-      - main.py
-      - modules.py
-      - util.py
-      - params.yaml
+      - imitation_learning/main.py
+      - imitation_learning/modules.py
+      - imitation_learning/util.py
+      - imitation_learning/params.yaml
       - imitation_learning/datasets/PickCube/trajectory.state.pd_joint_delta_pos.h5
     params:
       - obs_mode
