@@ -2,7 +2,7 @@
 
 stages:
   train:
-    cmd: python train.py
+    cmd: python src/train.py
     deps:
       - src/train.py
       - src/modules.py

@@ -119,11 +119,15 @@ def main():
         info_on_video=True,
     )
     while steps < config["train"]["iterations"]:
+        with Live() as live:
+            live.log_param("epoch", epoch)
+            live.log_param("steps", steps)
         epoch_loss = 0
         for batch in dataloader:
             steps += 1
             loss_val = train_step(policy, batch, optim, loss_fn, env, device)
             writer.add_scalar("train/mse_loss", loss_val, steps)
+            live.log_metric("train/loss", loss_val)
             epoch_loss += loss_val
             pbar.set_postfix(dict(loss=loss_val))
             pbar.update(1)
@@ -140,9 +144,12 @@ def main():
         if epoch % 5 == 0:
             success_rate = evaluate_policy(env, policy)
             writer.add_scalar("test/success_rate", success_rate, epoch)
+            live.log_metric("test/success_rate", success_rate)
 
         writer.add_scalar("train/mse_loss_epoch", epoch_loss, epoch)
+        live.log_metric("train/mse_loss_epoch", epoch_loss)
         epoch += 1
+        live.next_step()
 
     save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pt"))
     success_rate = evaluate_policy(env, policy)
