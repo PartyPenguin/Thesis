@@ -336,21 +336,9 @@ def create_graph(data):
     edge_attr = th.cat([edge_attr, temporal_edge_attr], dim=0)
 
     data = th.reshape(data, (time_step * nodes, -1))
-    # # Convert to tensor and make the graph undirected
-    # edge_index = th.tensor(edge_index, dtype=th.long).t().contiguous()
-    # edge_index = th.cat([edge_index, edge_index[[1, 0]]], dim=-1)
-    # # Make edge_attr undirected
-    # edge_attr = th.cat([edge_attr, edge_attr], dim=0)
-
     # Create the graph
     graph = Data(x=data, edge_index=edge_index, edge_attr=edge_attr)
     graph = T.ToUndirected()(graph)
-    # import networkx as nx
-
-    # Visualize the graph
-    # g = to_networkx(graph)
-    # nx.draw(g, with_labels=True)
-    # plt.show()
 
     return graph
 
