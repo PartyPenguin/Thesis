@@ -103,7 +103,7 @@ def main():
     )
     tmp_graph, obs, actions = dataset[0]
     tmp_graph = Batch.from_data_list([tmp_graph])
-    policy = GATPolicy(obs.shape[2] * 16, actions.shape[0]).to(device)
+    policy = GATPolicy(obs.shape[2] * 12, actions.shape[0]).to(device)
 
     loss_fn = nn.MSELoss()
 
@@ -118,42 +118,42 @@ def main():
         output_dir=osp.join(config["train"]["log_dir"], "videos"),
         info_on_video=True,
     )
-    while steps < config["train"]["iterations"]:
-        with Live() as live:
-            live.log_param("epoch", epoch)
-            live.log_param("steps", steps)
-        epoch_loss = 0
-        for batch in dataloader:
-            steps += 1
-            loss_val = train_step(policy, batch, optim, loss_fn, env, device)
-            writer.add_scalar("train/mse_loss", loss_val, steps)
-            live.log_metric("train/loss", loss_val)
-            epoch_loss += loss_val
-            pbar.set_postfix(dict(loss=loss_val))
-            pbar.update(1)
-            if steps % 2000 == 0:
-                save_model(policy, osp.join(ckpt_dir, f"ckpt_{steps}.pt"))
-            if steps >= config["train"]["iterations"]:
-                break
+    with Live() as live:
 
-        epoch_loss = epoch_loss / len(dataloader)
-        if epoch_loss < best_epoch_loss:
-            best_epoch_loss = epoch_loss
-            save_model(policy, osp.join(ckpt_dir, "ckpt_best.pt"))
+        while steps < config["train"]["iterations"]:
 
-        if epoch % 5 == 0:
-            success_rate = evaluate_policy(env, policy)
-            writer.add_scalar("test/success_rate", success_rate, epoch)
-            live.log_metric("test/success_rate", success_rate)
+            epoch_loss = 0
+            for batch in dataloader:
+                steps += 1
+                loss_val = train_step(policy, batch, optim, loss_fn, env, device)
+                writer.add_scalar("train/mse_loss", loss_val, steps)
+                live.log_metric("train/loss", loss_val)
+                epoch_loss += loss_val
+                pbar.set_postfix(dict(loss=loss_val))
+                pbar.update(1)
+                if steps % 2000 == 0:
+                    save_model(policy, osp.join(ckpt_dir, f"ckpt_{steps}.pt"))
+                if steps >= config["train"]["iterations"]:
+                    break
 
-        writer.add_scalar("train/mse_loss_epoch", epoch_loss, epoch)
-        live.log_metric("train/mse_loss_epoch", epoch_loss)
-        epoch += 1
-        live.next_step()
+            epoch_loss = epoch_loss / len(dataloader)
+            if epoch_loss < best_epoch_loss:
+                best_epoch_loss = epoch_loss
+                save_model(policy, osp.join(ckpt_dir, "ckpt_best.pt"))
 
-    save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pt"))
-    success_rate = evaluate_policy(env, policy)
-    print(f"Final Success Rate {success_rate}")
+            if epoch % 5 == 0:
+                success_rate = evaluate_policy(env, policy)
+                writer.add_scalar("test/success_rate", success_rate, epoch)
+                live.log_metric("test/success_rate", success_rate)
+
+            writer.add_scalar("train/mse_loss_epoch", epoch_loss, epoch)
+            live.log_metric("train/mse_loss_epoch", epoch_loss)
+            epoch += 1
+            live.next_step()
+
+        save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pt"))
+        success_rate = evaluate_policy(env, policy)
+        print(f"Final Success Rate {success_rate}")
 
 
 if __name__ == "__main__":

@@ -4,24 +4,26 @@ stages:
   train:
     cmd: python src/train.py
     deps:
-      - src/train.py
-      - src/modules.py
-      - src/utils/util.py
-      - params.yaml
-      - data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
+    - src/train.py
+    - src/modules.py
+    - src/utils/util.py
+    - params.yaml
+    - data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
     params:
-      - train.obs_mode
-      - train.control_mode
-      - train.render_mode
-      - train.num_steps
-      - train.batch_size
-      - train.num_workers
-      - train.lr
-      - train.seed
-      - train.log_dir
-      - train.env_id
-      - train.demo_path
-      - train.iterations
-      - train.eval
+    - train.obs_mode
+    - train.control_mode
+    - train.render_mode
+    - train.num_steps
+    - train.batch_size
+    - train.num_workers
+    - train.lr
+    - train.seed
+    - train.log_dir
+    - train.env_id
+    - train.demo_path
+    - train.iterations
+    - train.eval
     outs:
-      - logs/output
+    - logs/output
+params:
+- dvclive/params.yaml

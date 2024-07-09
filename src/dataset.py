@@ -332,9 +332,9 @@ def create_graph(data):
     ).to(edge_attr.device)
 
     # Concatenate the edge attributes
-    edge_attr = fourier_encode(th.cat([edge_attr, temporal_edge_attr], dim=0))
+    edge_attr = th.cat([edge_attr, temporal_edge_attr], dim=0)
 
-    data = fourier_encode(th.reshape(data, (time_step * nodes, -1)))
+    data = th.reshape(data, (time_step * nodes, -1))
     # Create the graph
     graph = Data(x=data, edge_index=edge_index, edge_attr=edge_attr)
     graph = T.ToUndirected()(graph)
