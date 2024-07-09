@@ -1,0 +1,9 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python imitation_learning/main.py
+    deps:
+    - path: imitation_learning/main.py
+      hash: md5
+      md5: dff999ecbe36a5887397e883744172c6
+      size: 10991
