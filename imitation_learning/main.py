@@ -28,7 +28,7 @@ from torch_geometric.data import Batch
 device = "cuda" if th.cuda.is_available() else "cpu"
 
 # Load config from params.yaml
-with open("params.yaml", "r") as f:
+with open("imitation_learning/params.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 DOF = 8  # 8 degrees of freedom for the robot
@@ -101,7 +101,7 @@ def main():
     dataloader, dataset = load_data(config["demo_path"], env=env, config=config)
     tmp_graph, obs, actions = dataset[0]
     tmp_graph = Batch.from_data_list([tmp_graph])
-    policy = GATPolicy(obs.shape[2], actions.shape[0]).to(device)
+    policy = GATPolicy(obs.shape[2] * 16, actions.shape[0]).to(device)
 
     loss_fn = nn.MSELoss()
 
@@ -114,15 +114,12 @@ def main():
     env = RecordEpisode(
         env, output_dir=osp.join(config["log_dir"], "videos"), info_on_video=True
     )
-    live = Live()
-
     while steps < config["iterations"]:
         epoch_loss = 0
         for batch in dataloader:
             steps += 1
             loss_val = train_step(policy, batch, optim, loss_fn, env, device)
             writer.add_scalar("train/mse_loss", loss_val, steps)
-            live.log("train/mse_loss", loss_val)
             epoch_loss += loss_val
             pbar.set_postfix(dict(loss=loss_val))
             pbar.update(1)
@@ -139,16 +136,12 @@ def main():
         if epoch % 5 == 0:
             success_rate = evaluate_policy(env, policy)
             writer.add_scalar("test/success_rate", success_rate, epoch)
-            live.log("test/success_rate", success_rate)
 
         writer.add_scalar("train/mse_loss_epoch", epoch_loss, epoch)
-        live.log("train/mse_loss_epoch", epoch_loss)
         epoch += 1
 
     save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pt"))
     success_rate = evaluate_policy(env, policy)
-    live.log("final_success_rate", success_rate)
-    live.next_step()
     print(f"Final Success Rate {success_rate}")
 
 
