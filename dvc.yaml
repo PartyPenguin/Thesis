@@ -1,0 +1,17 @@
+params:
+- dvclive/params.yaml
+stages:
+  train:
+    cmd: python imitation_learning/main.py
+    deps:
+    - imitation_learning/main.py
+
+artifacts:
+  ckpt_best:
+    path: ckpt_best.pt
+    type: model
+metrics:
+- dvclive/metrics.json
+plots:
+- dvclive/plots/metrics:
+    x: step
