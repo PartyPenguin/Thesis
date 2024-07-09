@@ -1,2 +1,4 @@
 /trajectory.h5
 /trajectory.json
+/trajectory.state.pd_joint_delta_pos.h5
+/trajectory.state.pd_joint_delta_pos.json
