@@ -1,17 +1,27 @@
-params:
-- dvclive/params.yaml
-stages:
-  train:
-    cmd: python imitation_learning/main.py
-    deps:
-    - imitation_learning/main.py
+# dvc.yaml
 
-artifacts:
-  ckpt_best:
-    path: ckpt_best.pt
-    type: model
-metrics:
-- dvclive/metrics.json
-plots:
-- dvclive/plots/metrics:
-    x: step
+stages:
+  prepare:
+    cmd: python main.py
+    deps:
+      - main.py
+      - modules.py
+      - util.py
+      - params.yaml
+      - imitation_learning/datasets/PickCube/trajectory.state.pd_joint_delta_pos.h5
+    params:
+      - obs_mode
+      - control_mode
+      - render_mode
+      - num_steps
+      - batch_size
+      - num_workers
+      - lr
+      - seed
+      - log_dir
+      - env_id
+      - demo_path
+      - iterations
+      - eval
+    outs:
+      - logs/with_l2reg
