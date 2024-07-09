@@ -1,0 +1,15 @@
+# params.yaml
+train:
+  obs_mode: state
+  control_mode: pd_joint_delta_pos
+  render_mode: cameras
+  num_steps: 100000
+  batch_size: 128
+  num_workers: 4
+  lr: 0.001
+  seed: 42
+  log_dir: logs/with_l2reg
+  env_id: PickCube-v0
+  demo_path: data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
+  iterations: 30000
+  eval: false
