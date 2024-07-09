@@ -1,7 +1,7 @@
 # dvc.yaml
 
 stages:
-  prepare:
+  train:
     cmd: python main.py
     deps:
       - imitation_learning/main.py
@@ -24,4 +24,4 @@ stages:
       - iterations
       - eval
     outs:
-      - logs/with_l2reg
+      - logs/output
