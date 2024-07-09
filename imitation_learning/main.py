@@ -264,7 +264,7 @@ def main():
         return success_rate
 
     writer = SummaryWriter(config["log_dir"])
-    optim = th.optim.Adam(policy.parameters(), lr=config["lr"], weight_decay=1e-5)
+    optim = th.optim.Adam(policy.parameters(), lr=config["lr"])
     best_epoch_loss = np.inf
     epoch = 0
     steps = 0

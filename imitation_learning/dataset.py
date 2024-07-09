@@ -64,18 +64,14 @@ def normalize(
 
 
 def fourier_encode(data: th.Tensor) -> th.Tensor:
-    def multiscale(x):
-        scales = [-1, 0, 1, 2, 3, 4, 5, 6]
-        return th.hstack(
-            [(x.reshape(-1, 1) / pow(3.0, i)).reshape(x.shape[0], -1) for i in scales]
-        )
+    scales = th.tensor([-1, 0, 1, 2, 3, 4, 5, 6], dtype=data.dtype, device=data.device)
+    scaled_data = data.reshape(-1, 1) / (3.0**scales).reshape(1, -1)
 
-    multiscale_data = multiscale(data)
-    sin_features = th.sin(multiscale_data)
-    cos_features = th.cos(multiscale_data)
+    sin_features = th.sin(scaled_data)
+    cos_features = th.cos(scaled_data)
 
-    features = th.hstack((sin_features, cos_features)).reshape(data.shape[0], -1)
-    return features
+    features = th.cat([sin_features, cos_features], dim=1)
+    return features.reshape(data.shape[0], -1)
 
 
 def draw_hetero_graph(data):
@@ -325,30 +321,30 @@ def create_graph(data):
         ]
     )
 
+    edge_index = th.tensor(edge_index).t().contiguous()
+
     # Edge attributes for the SE3 joint distances between the joints. Only applicable for the kinematic chain edges
     se3_joint_dist = th.linalg.norm(th.diff(data[:, :, 2:5], axis=1), axis=2)
-    se3_joint_dist_reshape = se3_joint_dist.reshape(-1, 1)
-
-    edge_attr = th.tensor(se3_joint_dist_reshape, dtype=th.float32)
+    edge_attr = se3_joint_dist.reshape(-1, 1)
 
     # Edge attributes for the temporal edges
     temporal_edge_attr = th.tensor(
-        np.zeros((nodes * (time_step - 1), 1)), dtype=th.float32
+        np.zeros((nodes * (time_step - 1), edge_attr.shape[1])), dtype=th.float32
     ).to(edge_attr.device)
 
     # Concatenate the edge attributes
     edge_attr = th.cat([edge_attr, temporal_edge_attr], dim=0)
 
     data = th.reshape(data, (time_step * nodes, -1))
-    # Convert to tensor and make the graph undirected
-    edge_index = th.tensor(edge_index, dtype=th.long).t().contiguous()
-    edge_index = th.cat([edge_index, edge_index[[1, 0]]], dim=-1)
-    # Make edge_attr undirected
-    edge_attr = th.cat([edge_attr, edge_attr], dim=0)
+    # # Convert to tensor and make the graph undirected
+    # edge_index = th.tensor(edge_index, dtype=th.long).t().contiguous()
+    # edge_index = th.cat([edge_index, edge_index[[1, 0]]], dim=-1)
+    # # Make edge_attr undirected
+    # edge_attr = th.cat([edge_attr, edge_attr], dim=0)
 
     # Create the graph
     graph = Data(x=data, edge_index=edge_index, edge_attr=edge_attr)
-
+    graph = T.ToUndirected()(graph)
     # import networkx as nx
 
     # Visualize the graph
@@ -390,14 +386,15 @@ def transform_obs(obs, pinocchio_model: PinocchioModel):
         joint_se3_pose = []
         for i in range(joint_positions.shape[0]):
             pinocchio_model.compute_forward_kinematics(joint_positions[i])
-            joint_se3_pose.append(
-                np.asarray(
-                    [
-                        vectorize_pose(pinocchio_model.get_link_pose(j)) + base_pose[i]
-                        for j in range(joint_positions.shape[1] - 1)
-                    ]
-                ).flatten()
-            )
+
+            pose = np.asarray(
+                [
+                    vectorize_pose(pinocchio_model.get_link_pose(j))
+                    for j in range(joint_positions.shape[1] - 1)
+                ]
+            ).flatten()
+            pose[:3] = pose[:3] - base_pose[i, :3]
+            joint_se3_pose.append(pose)
 
         return np.array(joint_se3_pose)
 
@@ -430,10 +427,15 @@ def transform_obs(obs, pinocchio_model: PinocchioModel):
         axis=2,
     )
 
+    # Adjust base_pose offset
+    # tcp_pose[:, :3] = tcp_pose[:, :3] - base_pose[:, :3]
+    # goal_position[:, :3] = goal_position - base_pose[:, :3]
+    # obj_pose[:, :3] = obj_pose[:, :3] - base_pose[:, :3]
+
     # Concatenate all context features into a single array
     context_info = np.hstack(
         [
-            base_pose,
+            # base_pose,
             tcp_pose,
             goal_position,
             tcp_to_goal_position,

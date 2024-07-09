@@ -69,9 +69,9 @@ class GATPolicy(nn.Module):
         super().__init__()
 
         # Define the GAT layers
-        self.gat_conv1 = GATConv(obs_dims, 64, heads=8, edge_dim=1, dropout=0.3)
-        self.gat_conv2 = GATConv(64 * 8, 64, heads=8, edge_dim=1, dropout=0.3)
-        self.gat_conv3 = GATConv(64 * 8, 64, heads=8, edge_dim=1, dropout=0.3)
+        self.gat_conv1 = GATConv(obs_dims, 64, heads=8, edge_dim=-1, dropout=0.5)
+        self.gat_conv2 = GATConv(64 * 8, 64, heads=8, edge_dim=-1, dropout=0.5)
+        self.gat_conv3 = GATConv(64 * 8, 64, heads=8, edge_dim=-1, dropout=0.5)
 
         # Define the linear layer
         self.lin = Linear(64 * 8, act_dims)
