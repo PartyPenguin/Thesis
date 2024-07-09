@@ -4,24 +4,24 @@ stages:
   train:
     cmd: python main.py
     deps:
-      - imitation_learning/main.py
-      - imitation_learning/modules.py
-      - imitation_learning/util.py
-      - imitation_learning/params.yaml
-      - imitation_learning/datasets/PickCube/trajectory.state.pd_joint_delta_pos.h5
+      - src/main.py
+      - src/modules.py
+      - src/util.py
+      - src/params.yaml
+      - src/data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
     params:
-      - obs_mode
-      - control_mode
-      - render_mode
-      - num_steps
-      - batch_size
-      - num_workers
-      - lr
-      - seed
-      - log_dir
-      - env_id
-      - demo_path
-      - iterations
-      - eval
+      - train.obs_mode
+      - train.control_mode
+      - train.render_mode
+      - train.num_steps
+      - train.batch_size
+      - train.num_workers
+      - train.lr
+      - train.seed
+      - train.log_dir
+      - train.env_id
+      - train.demo_path
+      - train.iterations
+      - train.eval
     outs:
       - logs/output

@@ -4,12 +4,12 @@ import mani_skill2.envs
 import os
 import numpy as np
 import gymnasium as gym
-from motion_planner import MotionPlanner
+from src.utils.motion_planner import MotionPlanner
 from mani_skill2.agents.base_controller import CombinedController
 from mani_skill2.agents.controllers import PDJointPosController
 from tqdm import tqdm
 from mani_skill2.utils.wrappers import RecordEpisode
-from aggregate_dataset import merge_hdf5_files, merge_json_files_into_file_a
+from src.utils.aggregate_dataset import merge_hdf5_files, merge_json_files_into_file_a
 import multiprocessing
 
 # os.environ["OPENBLAS_NUM_THREADS"] = "1"

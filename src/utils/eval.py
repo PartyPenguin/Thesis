@@ -2,15 +2,15 @@ import gymnasium as gym
 import mani_skill2.envs
 import torch as th
 import numpy as np
-from main import GCNPolicy
+from src.train import GCNPolicy
 from mani_skill2.utils.wrappers import RecordEpisode
 from mani_skill2.envs.sapien_env import BaseEnv
 from collections import deque
-from main import transform_obs
-from main import WINDOW_SIZE
-from dataset import create_graph, create_heterogeneous_graph
+from src.train import transform_obs
+from src.train import WINDOW_SIZE
+from src.dataset import create_graph, create_heterogeneous_graph
 import joblib
-from dataset import normalize, standardize
+from src.dataset import normalize, standardize
 from torch_geometric.data import Batch
 
 log_dir = "logs/eval"
@@ -23,7 +23,7 @@ env: BaseEnv = gym.make(
 # env = RecordEpisode(env, output_dir=osp.join(log_dir, "videos"), info_on_video=True)
 env.reset(seed=0)
 device = "cuda" if th.cuda.is_available() else "cpu"
-model_path = "logs/with_l2reg/checkpoints/ckpt_best.pt"
+model_path = "logs/with_l2sreg/checkpoints/ckpt_best.pt"
 print("Observation space", env.observation_space)
 print("Action space", env.action_space)
 

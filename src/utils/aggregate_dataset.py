@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 # Local application imports
 import mani_skill2.envs
-from motion_planner import MotionPlanner
+from src.utils.motion_planner import MotionPlanner
 from modules import GCNPolicy
 from mani_skill2.utils.wrappers import RecordEpisode
 

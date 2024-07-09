@@ -18,7 +18,6 @@ import joblib
 WINDOW_SIZE = 4
 
 
-# loads h5 data into memory for faster access
 def load_h5_data(data):
     out = dict()
     for k in data.keys():

@@ -20,7 +20,7 @@ import mani_skill2.envs
 from mani_skill2.envs.sapien_env import BaseEnv
 from mani_skill2.utils.wrappers import RecordEpisode
 from modules import GATPolicy
-from util import load_data, compute_nullspace_proj, evaluate_policy
+from src.utils.util import load_data, compute_nullspace_proj, evaluate_policy
 
 # Torch geometric imports
 from torch_geometric.data import Batch
@@ -28,7 +28,7 @@ from torch_geometric.data import Batch
 device = "cuda" if th.cuda.is_available() else "cpu"
 
 # Load config from params.yaml
-with open("imitation_learning/params.yaml", "r") as f:
+with open("src/params.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 DOF = 8  # 8 degrees of freedom for the robot
@@ -85,36 +85,40 @@ def train_step(policy, data, optim, loss_fn, env, device):
 
 def main():
 
-    if config["seed"] is not None:
-        set_seed(config["seed"])
+    if config["train"]["seed"] is not None:
+        set_seed(config["train"]["seed"])
 
-    ckpt_dir = osp.join(config["log_dir"], "checkpoints")
+    ckpt_dir = osp.join(config["train"]["log_dir"], "checkpoints")
     Path(ckpt_dir).mkdir(parents=True, exist_ok=True)
 
     env: BaseEnv = gym.make(
-        id=config["env_id"],
-        obs_mode=config["obs_mode"],
-        control_mode=config["control_mode"],
-        render_mode=config["render_mode"],
+        id=config["train"]["env_id"],
+        obs_mode=config["train"]["obs_mode"],
+        control_mode=config["train"]["control_mode"],
+        render_mode=config["train"]["render_mode"],
     )
 
-    dataloader, dataset = load_data(config["demo_path"], env=env, config=config)
+    dataloader, dataset = load_data(
+        config["train"]["demo_path"], env=env, config=config
+    )
     tmp_graph, obs, actions = dataset[0]
     tmp_graph = Batch.from_data_list([tmp_graph])
     policy = GATPolicy(obs.shape[2] * 16, actions.shape[0]).to(device)
 
     loss_fn = nn.MSELoss()
 
-    writer = SummaryWriter(config["log_dir"])
-    optim = th.optim.Adam(policy.parameters(), lr=config["lr"])
+    writer = SummaryWriter(config["train"]["log_dir"])
+    optim = th.optim.Adam(policy.parameters(), lr=config["train"]["lr"])
     best_epoch_loss = np.inf
     epoch = 0
     steps = 0
-    pbar = tqdm(dataloader, total=config["iterations"], leave=False)
+    pbar = tqdm(dataloader, total=config["train"]["iterations"], leave=False)
     env = RecordEpisode(
-        env, output_dir=osp.join(config["log_dir"], "videos"), info_on_video=True
+        env,
+        output_dir=osp.join(config["train"]["log_dir"], "videos"),
+        info_on_video=True,
     )
-    while steps < config["iterations"]:
+    while steps < config["train"]["iterations"]:
         epoch_loss = 0
         for batch in dataloader:
             steps += 1
@@ -125,7 +129,7 @@ def main():
             pbar.update(1)
             if steps % 2000 == 0:
                 save_model(policy, osp.join(ckpt_dir, f"ckpt_{steps}.pt"))
-            if steps >= config["iterations"]:
+            if steps >= config["train"]["iterations"]:
                 break
 
         epoch_loss = epoch_loss / len(dataloader)

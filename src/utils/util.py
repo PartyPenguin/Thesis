@@ -1,13 +1,13 @@
-from imitation_learning.dataset import GeometricManiSkill2Dataset
+from src.dataset import GeometricManiSkill2Dataset
 from torch_geometric.loader import DataLoader as GeometricDataLoader
 import torch as th
 from sapien.core.pysapien import PinocchioModel
 import numpy as np
 from tqdm import tqdm
 from collections import deque
-from imitation_learning.dataset import transform_obs
-from imitation_learning.dataset import create_graph
-from imitation_learning.dataset import WINDOW_SIZE
+from src.dataset import transform_obs
+from src.dataset import create_graph
+from src.dataset import WINDOW_SIZE
 from mani_skill2.envs.sapien_env import BaseEnv
 from torch_geometric.data import Batch
 
@@ -27,8 +27,8 @@ def load_data(path, env, config):
     dataset = GeometricManiSkill2Dataset(path, root="", env=env)
     dataloader = GeometricDataLoader(
         dataset,
-        batch_size=config["batch_size"],
-        num_workers=config["num_workers"],
+        batch_size=config["train"]["batch_size"],
+        num_workers=config["train"]["num_workers"],
         pin_memory=True,
         drop_last=True,
         shuffle=True,
