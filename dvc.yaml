@@ -7,7 +7,7 @@ stages:
       - src/train.py
       - src/modules.py
       - src/utils/util.py
-      - src/params.yaml
+      - params.yaml
       - data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
     params:
       - train.obs_mode

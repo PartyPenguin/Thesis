@@ -28,7 +28,7 @@ from torch_geometric.data import Batch
 device = "cuda" if th.cuda.is_available() else "cpu"
 
 # Load config from params.yaml
-with open("src/params.yaml", "r") as f:
+with open("params.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 DOF = 8  # 8 degrees of freedom for the robot
