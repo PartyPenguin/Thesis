@@ -2,13 +2,13 @@
 
 stages:
   train:
-    cmd: python main.py
+    cmd: python train.py
     deps:
-      - src/main.py
+      - src/train.py
       - src/modules.py
-      - src/util.py
+      - src/utils/util.py
       - src/params.yaml
-      - src/data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
+      - data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
     params:
       - train.obs_mode
       - train.control_mode
