@@ -136,6 +136,8 @@ def main():
                 if steps >= config["train"]["iterations"]:
                     break
 
+                live.next_step()
+
             epoch_loss = epoch_loss / len(dataloader)
             if epoch_loss < best_epoch_loss:
                 best_epoch_loss = epoch_loss
@@ -149,7 +151,6 @@ def main():
             writer.add_scalar("train/mse_loss_epoch", epoch_loss, epoch)
             live.log_metric("train/mse_loss_epoch", epoch_loss)
             epoch += 1
-            live.next_step()
 
         save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pt"))
         success_rate = evaluate_policy(env, policy)

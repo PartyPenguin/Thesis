@@ -25,5 +25,3 @@ stages:
     - train.eval
     outs:
     - logs/output
-params:
-- dvclive/params.yaml
