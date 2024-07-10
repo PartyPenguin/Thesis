@@ -1,0 +1,5 @@
+outs:
+- md5: 29b7679763534b4aa8c7a2cc81dce84b
+  size: 3142080
+  hash: md5
+  path: act.npy

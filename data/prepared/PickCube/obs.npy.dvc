@@ -1,0 +1,5 @@
+outs:
+- md5: 5e957d6db47b622fafd814760e1688e8
+  size: 219936768
+  hash: md5
+  path: obs.npy

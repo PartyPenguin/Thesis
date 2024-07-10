@@ -1,4 +1,16 @@
 # params.yaml
+env_id: PickCube-v0
+obs_mode: state
+control_mode: pd_joint_delta_pos
+render_mode: cameras
+raw_data_path: data/raw/PickCube/
+prepared_data_path: data/prepared/PickCube/
+data_file: trajectory.state.pd_joint_delta_pos.h5
+
+prepare:
+  load_count: -1
+  transformations: []
+
 train:
   obs_mode: state
   control_mode: pd_joint_delta_pos
@@ -10,6 +22,5 @@ train:
   seed: 42
   log_dir: logs/with_l2reg
   env_id: PickCube-v0
-  demo_path: data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
   iterations: 30000
   eval: false
