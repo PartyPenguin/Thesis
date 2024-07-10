@@ -446,7 +446,7 @@ def transform_obs(obs, pinocchio_model: PinocchioModel):
 class GeometricManiSkill2Dataset(GeometricDataset):
     def __init__(
         self,
-        dataset_file: str,
+        config,
         root,
         env: BaseEnv,
         load_count=-1,
@@ -454,45 +454,9 @@ class GeometricManiSkill2Dataset(GeometricDataset):
         pre_transform=None,
     ):
         super(GeometricManiSkill2Dataset, self).__init__(root, transform, pre_transform)
-        self.dataset_file = dataset_file
-        # for details on how the code below works, see the
-        # quick start tutorial
-        from mani_skill2.utils.io_utils import load_json
-
-        self.pinocchio_model = env.agent.robot.create_pinocchio_model()
-        self.data = h5py.File(dataset_file, "r")
-        json_path = dataset_file.replace(".h5", ".json")
-        self.json_data = load_json(json_path)
-        self.episodes = self.json_data["episodes"]
-        self.env_info = self.json_data["env_info"]
-        self.env_id = self.env_info["env_id"]
-        self.env_kwargs = self.env_info["env_kwargs"]
-        self.episode_steps = [
-            episode["elapsed_steps"] for episode in self.json_data["episodes"]
-        ]
-
-        self.observations = []
-        self.actions = []
-        self.episode_map = []
-        if load_count == -1:
-            load_count = len(self.episodes)
-        for eps_id in tqdm(range(load_count)):
-            eps = self.episodes[eps_id]
-            trajectory = self.data[f"traj_{eps['episode_id']}"]
-            trajectory = load_h5_data(trajectory)
-            # we use :-1 here to ignore the last observation as that
-            # is the terminal observation which has no actions
-            self.observations.append(trajectory["obs"][:-1])
-            self.actions.append(trajectory["actions"])
-            self.episode_map.append(
-                np.full(len(trajectory["obs"]) - 1, eps["episode_id"])
-            )
-
-        self.observations = np.vstack(self.observations)
-        self.observations = transform_obs(self.observations, self.pinocchio_model)
-
-        self.actions = np.vstack(self.actions)
-        self.episode_map = np.hstack(self.episode_map)
+        self.actions = np.load(config["prepared_data_path"] + "act.npy")
+        self.observations = np.load(config["prepared_data_path"] + "obs.npy")
+        self.episode_map = np.load(config["prepared_data_path"] + "episode_map.npy")
 
     def len(self):
         return len(self.observations)
@@ -533,6 +497,3 @@ class GeometricManiSkill2Dataset(GeometricDataset):
 
         # Return the observation tensor and the action for the current index
         return create_graph(obs), obs, action
-
-    def close_h5(self):
-        self.data.close()

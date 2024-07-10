@@ -98,12 +98,10 @@ def main():
         render_mode=config["train"]["render_mode"],
     )
 
-    dataloader, dataset = load_data(
-        config["train"]["demo_path"], env=env, config=config
-    )
+    dataloader, dataset = load_data(env=env, config=config)
     tmp_graph, obs, actions = dataset[0]
     tmp_graph = Batch.from_data_list([tmp_graph])
-    policy = GATPolicy(obs.shape[2] * 12, actions.shape[0]).to(device)
+    policy = GATPolicy(obs.shape[2], actions.shape[0]).to(device)
 
     loss_fn = nn.MSELoss()
 
@@ -127,7 +125,7 @@ def main():
                 steps += 1
                 loss_val = train_step(policy, batch, optim, loss_fn, env, device)
                 writer.add_scalar("train/mse_loss", loss_val, steps)
-                live.log_metric("train/loss", loss_val)
+                # live.log_metric("train/loss", loss_val)
                 epoch_loss += loss_val
                 pbar.set_postfix(dict(loss=loss_val))
                 pbar.update(1)
@@ -135,6 +133,8 @@ def main():
                     save_model(policy, osp.join(ckpt_dir, f"ckpt_{steps}.pt"))
                 if steps >= config["train"]["iterations"]:
                     break
+
+                # live.next_step()
 
             epoch_loss = epoch_loss / len(dataloader)
             if epoch_loss < best_epoch_loss:
@@ -144,12 +144,11 @@ def main():
             if epoch % 5 == 0:
                 success_rate = evaluate_policy(env, policy)
                 writer.add_scalar("test/success_rate", success_rate, epoch)
-                live.log_metric("test/success_rate", success_rate)
+                # live.log_metric("test/success_rate", success_rate)
 
             writer.add_scalar("train/mse_loss_epoch", epoch_loss, epoch)
-            live.log_metric("train/mse_loss_epoch", epoch_loss)
+            # live.log_metric("train/mse_loss_epoch", epoch_loss)
             epoch += 1
-            live.next_step()
 
         save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pt"))
         success_rate = evaluate_policy(env, policy)

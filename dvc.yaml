@@ -1,6 +1,24 @@
 # dvc.yaml
 
 stages:
+
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+    - src/prepare.py
+    - params.yaml
+    - data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
+    params:
+    - prepare.load_count
+    - prepare.transformations
+    - raw_data_path
+    - prepared_data_path
+    - data_file
+    outs:
+    - data/prepared/PickCube/act.npy
+    - data/prepared/PickCube/obs.npy
+    - data/prepared/PickCube/episode_map.npy
+
   train:
     cmd: python src/train.py
     deps:
@@ -8,7 +26,10 @@ stages:
     - src/modules.py
     - src/utils/util.py
     - params.yaml
-    - data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
+    - data/prepared/PickCube/act.npy
+    - data/prepared/PickCube/obs.npy
+    - data/prepared/PickCube/episode_map.npy
+
     params:
     - train.obs_mode
     - train.control_mode
@@ -20,10 +41,7 @@ stages:
     - train.seed
     - train.log_dir
     - train.env_id
-    - train.demo_path
     - train.iterations
     - train.eval
     outs:
     - logs/output
-params:
-- dvclive/params.yaml

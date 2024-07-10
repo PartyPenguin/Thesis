@@ -12,7 +12,7 @@ from mani_skill2.envs.sapien_env import BaseEnv
 from torch_geometric.data import Batch
 
 
-def load_data(path, env, config):
+def load_data(env, config):
     """
     Load data from a given path and create a data loader.
 
@@ -24,7 +24,7 @@ def load_data(path, env, config):
     Returns:
         tuple: A tuple containing the data loader and the dataset object.
     """
-    dataset = GeometricManiSkill2Dataset(path, root="", env=env)
+    dataset = GeometricManiSkill2Dataset(config, root="", env=env)
     dataloader = GeometricDataLoader(
         dataset,
         batch_size=config["train"]["batch_size"],
@@ -33,7 +33,6 @@ def load_data(path, env, config):
         drop_last=True,
         shuffle=True,
     )
-    dataset.close_h5()
     return dataloader, dataset
 
 
