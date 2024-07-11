@@ -12,6 +12,7 @@ from mani_skill2.envs.sapien_env import BaseEnv
 from torch_geometric.data import Batch
 from src.prepare import base_transform_obs
 import pytorch_kinematics as pk
+from typing import Tuple
 
 
 def load_data(env, config):
@@ -38,7 +39,9 @@ def load_data(env, config):
     return dataloader, dataset
 
 
-def compute_fk(q_pos_batch: th.Tensor, env: BaseEnv, device: str) -> th.Tensor:
+def compute_fk(
+    q_pos_batch: th.Tensor, env: BaseEnv, device: str
+) -> Tuple[th.Tensor, th.Tensor]:
     chain = pk.build_serial_chain_from_urdf(
         open("assets/descriptions/panda_v2.urdf").read(), "panda_hand_tcp"
     )
@@ -51,8 +54,9 @@ def compute_fk(q_pos_batch: th.Tensor, env: BaseEnv, device: str) -> th.Tensor:
     tf = chain.forward_kinematics(q_pos_batch).get_matrix()
 
     ef_pos = tf[:, :3, 3]
+    ef_rot = pk.matrix_to_quaternion(tf[:, :3, :3])
 
-    return ef_pos
+    return ef_pos, ef_rot
 
 
 def compute_nullspace_proj(
