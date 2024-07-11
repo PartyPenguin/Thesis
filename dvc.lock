@@ -63,8 +63,8 @@ stages:
       size: 568
     - path: src/prepare.py
       hash: md5
-      md5: 169ffb3ff579c3d895915d5d9fc23b0c
-      size: 5574
+      md5: 9314252db46fb57afd40953d95cbd4ba
+      size: 5597
     params:
       params.yaml:
         data_file: trajectory.state.pd_joint_delta_pos.h5
@@ -83,8 +83,8 @@ stages:
       size: 785616
     - path: data/prepared/PickCube/obs.npy
       hash: md5
-      md5: 5e957d6db47b622fafd814760e1688e8
-      size: 219936768
+      md5: 49ddda734d02419557743d4488c3a1cd
+      size: 263924096
   evaluate:
     cmd: python src/evaluate.py
     deps:
