@@ -64,7 +64,7 @@ class GCNPolicy(nn.Module):
         return x
 
 
-class GraphSagePolicy(nn.Module):
+class GraphSAGEPolicy(nn.Module):
     def __init__(self, obs_dims, act_dims):
         super().__init__()
 

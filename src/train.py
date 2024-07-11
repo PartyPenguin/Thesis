@@ -19,7 +19,7 @@ from dvclive import Live
 import mani_skill2.envs
 from mani_skill2.envs.sapien_env import BaseEnv
 from mani_skill2.utils.wrappers import RecordEpisode
-from src.modules import GATPolicy
+from src.modules import GATPolicy, GraphSAGEPolicy
 from src.utils.util import load_data, compute_nullspace_proj, evaluate_policy
 
 # Torch geometric imports
@@ -101,7 +101,7 @@ def main():
     dataloader, dataset = load_data(env=env, config=config)
     tmp_graph, obs, actions = dataset[0]
     tmp_graph = Batch.from_data_list([tmp_graph])
-    policy = GATPolicy(obs.shape[2], actions.shape[0]).to(device)
+    policy = GraphSAGEPolicy(obs.shape[2], actions.shape[0]).to(device)
 
     loss_fn = nn.MSELoss()
 
