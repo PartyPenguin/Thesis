@@ -61,7 +61,7 @@ def create_graph_batch(obs: th.Tensor, device: str) -> Batch:
 
 def main():
     log_dir = "logs/eval"
-    model_path = "logs/output/checkpoints/ckpt_latest.pt"
+    model_path = "logs/output/checkpoints/ckpt_best.pt"
     device = "cuda" if th.cuda.is_available() else "cpu"
     num_runs = 100
 

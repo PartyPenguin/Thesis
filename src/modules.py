@@ -121,14 +121,13 @@ class GATPolicy(nn.Module):
         x = self.gat_conv2(x, edge_index, edge_attr).relu()
         x = self.gat_conv3(x, edge_index, edge_attr).relu()
 
-        # Apply the tanh activation function because the actions are in the range [-1, 1]
-        x = th.tanh(x)
-
         # Apply global mean pooling
         x = global_mean_pool(x, batch)
 
         # Apply the linear layer
         x = self.lin(x)
+        # Apply the tanh activation function because the actions are in the range [-1, 1]
+        x = th.tanh(x)
 
         return x
 

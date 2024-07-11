@@ -101,7 +101,7 @@ def main():
     dataloader, dataset = load_data(env=env, config=config)
     tmp_graph, obs, actions = dataset[0]
     tmp_graph = Batch.from_data_list([tmp_graph])
-    policy = GraphSAGEPolicy(obs.shape[2], actions.shape[0]).to(device)
+    policy = GATPolicy(obs.shape[2], actions.shape[0]).to(device)
 
     loss_fn = nn.MSELoss()
 
