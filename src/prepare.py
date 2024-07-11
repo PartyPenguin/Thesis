@@ -123,6 +123,7 @@ def base_transform_obs(obs, env):
 
     context_info = np.hstack(
         [
+            base_pose,
             tcp_pose,
             goal_position,
             tcp_to_goal_position,

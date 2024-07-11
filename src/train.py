@@ -20,7 +20,12 @@ import mani_skill2.envs
 from mani_skill2.envs.sapien_env import BaseEnv
 from mani_skill2.utils.wrappers import RecordEpisode
 from src.modules import GATPolicy, GraphSAGEPolicy
-from src.utils.util import load_data, compute_nullspace_proj, evaluate_policy
+from src.utils.util import (
+    load_data,
+    compute_nullspace_proj,
+    evaluate_policy,
+    compute_fk,
+)
 
 # Torch geometric imports
 from torch_geometric.data import Batch
@@ -66,17 +71,27 @@ def train_step(policy, data, optim, loss_fn, env, device):
     q_pos = obs[:, -1, :, 0]
     q_pos = q_pos.float()
 
-    nullspace_proj = compute_nullspace_proj(
-        q_pos, pred_actions, env=env, device=device
-    ).float()
+    base_pose = obs[:, -1, 0, 9:16]
 
-    nullspace_norm = th.norm(nullspace_proj, dim=1)
-    default_pos_error = th.abs((DEFAULT_Q_POS[:-1] - q_pos)).float()
+    # nullspace_proj = compute_nullspace_proj(
+    #     q_pos, pred_actions, env=env, device=device
+    # ).float()
+
+    end_effector = (
+        compute_fk(q_pos + pred_actions, env=env, device=device) + base_pose[:, :3]
+    )
+    end_effector_true = (
+        compute_fk(q_pos + actions, env=env, device=device) + base_pose[:, :3]
+    )
+
+    # nullspace_norm = th.norm(nullspace_proj, dim=1)
+    # default_pos_error = th.abs((DEFAULT_Q_POS[:-1] - q_pos)).float()
 
     loss = (
         loss_fn(actions, pred_actions)
         # + 0.0001 * nullspace_norm.mean()
         # + 0.0005 * (nullspace_proj.squeeze()[:, :-1] @ default_pos_error.T).mean()
+        + 0.0001 * th.norm(end_effector - end_effector_true, dim=1).mean()
     )
     loss.backward()
     optim.step()

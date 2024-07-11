@@ -11,6 +11,7 @@ from src.dataset import WINDOW_SIZE
 from mani_skill2.envs.sapien_env import BaseEnv
 from torch_geometric.data import Batch
 from src.prepare import base_transform_obs
+import pytorch_kinematics as pk
 
 
 def load_data(env, config):
@@ -35,6 +36,23 @@ def load_data(env, config):
         shuffle=True,
     )
     return dataloader, dataset
+
+
+def compute_fk(q_pos_batch: th.Tensor, env: BaseEnv, device: str) -> th.Tensor:
+    chain = pk.build_serial_chain_from_urdf(
+        open("assets/descriptions/panda_v2.urdf").read(), "panda_hand_tcp"
+    )
+    dtype = th.float64
+
+    chain.to(device=device, dtype=dtype)
+
+    q_pos_batch = q_pos_batch.to(device=device, dtype=dtype)[:, :7]
+
+    tf = chain.forward_kinematics(q_pos_batch).get_matrix()
+
+    ef_pos = tf[:, :3, 3]
+
+    return ef_pos
 
 
 def compute_nullspace_proj(
