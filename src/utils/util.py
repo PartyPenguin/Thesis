@@ -66,7 +66,7 @@ def compute_nullspace_proj(
         Returns:
             torch.Tensor: Jacobian matrix.
         """
-        pinocchio_model = env.agent.robot.create_pinocchio_model()
+        pinocchio_model = env.unwrapped.agent.robot.create_pinocchio_model()
         J_batch = []
         q_batch_numpy = q_batch.cpu().numpy()
         for q in q_batch_numpy:

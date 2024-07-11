@@ -75,8 +75,8 @@ def train_step(policy, data, optim, loss_fn, env, device):
 
     loss = (
         loss_fn(actions, pred_actions)
-        + 0.0001 * nullspace_norm.mean()
-        + 0.0005 * (nullspace_proj.squeeze()[:, :-1] @ default_pos_error.T).mean()
+        # + 0.0001 * nullspace_norm.mean()
+        # + 0.0005 * (nullspace_proj.squeeze()[:, :-1] @ default_pos_error.T).mean()
     )
     loss.backward()
     optim.step()

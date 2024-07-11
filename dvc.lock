@@ -17,20 +17,20 @@ stages:
       size: 219936768
     - path: params.yaml
       hash: md5
-      md5: 20249b748ed323c611ee96245afaf8d3
-      size: 548
+      md5: c9530890b510f17d1cfbc6243c3848f6
+      size: 568
     - path: src/modules.py
       hash: md5
-      md5: f5c8b6a361150feff332f6cf301938a2
-      size: 5822
+      md5: ea945c0c7733d59b5428e75072b11933
+      size: 6909
     - path: src/train.py
       hash: md5
-      md5: 52956d19742d49f1c520611fdcb7be72
-      size: 4751
+      md5: 45d4b04d503fd3cfac6794c21691978e
+      size: 4728
     - path: src/utils/util.py
       hash: md5
-      md5: 3ecf19fe5c2681024122d34b142fa773
-      size: 5555
+      md5: daac8edc7cf997d052a88bd33907cdbb
+      size: 5333
     params:
       params.yaml:
         train.batch_size: 128
@@ -48,8 +48,8 @@ stages:
     outs:
     - path: logs/output/checkpoints/ckpt_best.pt
       hash: md5
-      md5: 525d6efdc8064bc06f4a6bac51144d37
-      size: 2246346
+      md5: 2fec690bd26b109e696d770be61d33ef
+      size: 320147
   prepare:
     cmd: python src/prepare.py
     deps:

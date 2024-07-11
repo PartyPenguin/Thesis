@@ -108,21 +108,27 @@ class GATPolicy(nn.Module):
         # Define the linear layer
         self.lin = Linear(64 * 8, act_dims)
 
-    def forward(self, x, edge_index, edge_attr, batch):
+    def forward(self, data):
+        x, edge_index, edge_attr, batch = (
+            data.x,
+            data.edge_index,
+            data.edge_attr,
+            data.batch,
+        )
 
         # Apply the GAT layers
         x = self.gat_conv1(x, edge_index, edge_attr).relu()
         x = self.gat_conv2(x, edge_index, edge_attr).relu()
         x = self.gat_conv3(x, edge_index, edge_attr).relu()
 
-        # Apply the linear layer
-        x = self.lin(x)
-
         # Apply the tanh activation function because the actions are in the range [-1, 1]
         x = th.tanh(x)
 
         # Apply global mean pooling
         x = global_mean_pool(x, batch)
+
+        # Apply the linear layer
+        x = self.lin(x)
 
         return x
 
