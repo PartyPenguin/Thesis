@@ -1,7 +1,7 @@
 import torch as th
 import torch.nn as nn
 from torch_geometric.nn import global_mean_pool
-from torch_geometric.nn import GCNConv, GATConv, RGATConv, GraphSAGE
+from torch_geometric.nn import GCNConv, GATConv, RGATConv, SAGEConv
 from torch_geometric.nn import Linear
 from torch_geometric.data import Data
 from torch_geometric.data import Batch
@@ -69,9 +69,9 @@ class GraphSAGEPolicy(nn.Module):
         super().__init__()
 
         # Define the GraphSage layers
-        self.graph_sage_conv1 = GraphSAGE(obs_dims, 128)
-        self.graph_sage_conv2 = GraphSAGE(128, 128)
-        self.graph_sage_conv3 = GraphSAGE(128, 128)
+        self.graph_sage_conv1 = SAGEConv(obs_dims, 128)
+        self.graph_sage_conv2 = SAGEConv(128, 128)
+        self.graph_sage_conv3 = SAGEConv(128, 128)
 
         # Define the linear layer
         self.lin = Linear(128, act_dims)
