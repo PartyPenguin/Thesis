@@ -146,18 +146,7 @@ def evaluate_policy(env, policy, num_episodes=10, device="cuda"):
         )
         graph = Batch.from_data_list(graph_list).to(device)
         with th.no_grad():
-            action = (
-                policy(
-                    graph.x,
-                    graph.edge_index,
-                    graph.edge_attr,
-                    graph.batch,
-                )
-                .squeeze()
-                .detach()
-                .cpu()
-                .numpy()
-            )
+            action = policy(graph).squeeze().detach().cpu().numpy()
         obs, reward, terminated, truncated, info = env.step(action)
         obs_list.append(obs)
         if terminated or truncated:
