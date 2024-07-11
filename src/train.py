@@ -61,7 +61,7 @@ def train_step(policy, data, optim, loss_fn, env, device):
     obs = obs.to(device)
     actions = actions.to(device)
 
-    pred_actions = policy(graph.x, graph.edge_index, graph.edge_attr, graph.batch)
+    pred_actions = policy(graph)
 
     q_pos = obs[:, -1, :, 0]
     q_pos = q_pos.float()
