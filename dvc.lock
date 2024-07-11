@@ -1,9 +1,87 @@
 schema: '2.0'
 stages:
   train:
-    cmd: python imitation_learning/main.py
+    cmd: python src/train.py
     deps:
-    - path: imitation_learning/main.py
+    - path: data/prepared/PickCube/act.npy
       hash: md5
-      md5: dff999ecbe36a5887397e883744172c6
-      size: 10991
+      md5: 29b7679763534b4aa8c7a2cc81dce84b
+      size: 3142080
+    - path: data/prepared/PickCube/episode_map.npy
+      hash: md5
+      md5: fd18f2ed4f9b34623ab380ebd8fc57df
+      size: 785616
+    - path: data/prepared/PickCube/obs.npy
+      hash: md5
+      md5: 5e957d6db47b622fafd814760e1688e8
+      size: 219936768
+    - path: params.yaml
+      hash: md5
+      md5: 20249b748ed323c611ee96245afaf8d3
+      size: 548
+    - path: src/modules.py
+      hash: md5
+      md5: f5c8b6a361150feff332f6cf301938a2
+      size: 5822
+    - path: src/train.py
+      hash: md5
+      md5: 52956d19742d49f1c520611fdcb7be72
+      size: 4751
+    - path: src/utils/util.py
+      hash: md5
+      md5: 3ecf19fe5c2681024122d34b142fa773
+      size: 5555
+    params:
+      params.yaml:
+        train.batch_size: 128
+        train.control_mode: pd_joint_delta_pos
+        train.env_id: PickCube-v0
+        train.eval: false
+        train.iterations: 30000
+        train.log_dir: logs/output
+        train.lr: 0.001
+        train.num_steps: 100000
+        train.num_workers: 4
+        train.obs_mode: state
+        train.render_mode: cameras
+        train.seed: 42
+    outs:
+    - path: logs/output/checkpoints/ckpt_best.pt
+      hash: md5
+      md5: 525d6efdc8064bc06f4a6bac51144d37
+      size: 2246346
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+    - path: data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
+      hash: md5
+      md5: 77ca6eea371eb02644fb85a6f2ff88e0
+      size: 73559050
+    - path: params.yaml
+      hash: md5
+      md5: 20249b748ed323c611ee96245afaf8d3
+      size: 548
+    - path: src/prepare.py
+      hash: md5
+      md5: 64a0c4eafd8a035200824f4d25d5a68a
+      size: 5532
+    params:
+      params.yaml:
+        data_file: trajectory.state.pd_joint_delta_pos.h5
+        prepare.load_count: -1
+        prepare.transformations: []
+        prepared_data_path: data/prepared/PickCube/
+        raw_data_path: data/raw/PickCube/
+    outs:
+    - path: data/prepared/PickCube/act.npy
+      hash: md5
+      md5: 29b7679763534b4aa8c7a2cc81dce84b
+      size: 3142080
+    - path: data/prepared/PickCube/episode_map.npy
+      hash: md5
+      md5: fd18f2ed4f9b34623ab380ebd8fc57df
+      size: 785616
+    - path: data/prepared/PickCube/obs.npy
+      hash: md5
+      md5: 5e957d6db47b622fafd814760e1688e8
+      size: 219936768

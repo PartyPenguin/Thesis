@@ -89,7 +89,7 @@ def load_raw_data(config):
 
 def base_transform_obs(obs, env):
     def compute_joint_se3_pose(joint_positions, base_pose):
-        pinocchio_model = env.agent.robot.create_pinocchio_model()
+        pinocchio_model = env.unwrapped.agent.robot.create_pinocchio_model()
         joint_se3_pose = []
         for i in range(joint_positions.shape[0]):
             pinocchio_model.compute_forward_kinematics(joint_positions[i])
@@ -171,4 +171,6 @@ def prepare(config):
 
 with open("params.yaml", "r") as f:
     config = yaml.safe_load(f)
-prepare(config)
+
+if __name__ == "__main__":
+    prepare(config)

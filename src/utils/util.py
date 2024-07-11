@@ -10,6 +10,7 @@ from src.dataset import create_graph
 from src.dataset import WINDOW_SIZE
 from mani_skill2.envs.sapien_env import BaseEnv
 from torch_geometric.data import Batch
+from src.prepare import base_transform_obs
 
 
 def load_data(env, config):
@@ -125,7 +126,7 @@ def evaluate_policy(env, policy, num_episodes=10, device="cuda"):
     Returns:
         float: The success rate of the policy, defined as the proportion of successful episodes.
     """
-    pinocchio_model = env.agent.robot.create_pinocchio_model()
+    pinocchio_model = env.unwrapped.agent.robot.create_pinocchio_model()
     obs_list = deque(maxlen=WINDOW_SIZE)
     # Fill obs_list with zeros
     for _ in range(WINDOW_SIZE):
@@ -135,9 +136,8 @@ def evaluate_policy(env, policy, num_episodes=10, device="cuda"):
     i = 0
     pbar = tqdm(total=num_episodes, leave=False)
     while i < num_episodes:
-        obs = np.array(obs_list)
-        obs = transform_obs(np.array(obs_list), pinocchio_model=pinocchio_model)
-        obs = th.tensor(obs, device=device).float().unsqueeze(0)
+        obs, shape = base_transform_obs(np.array(obs_list), env=env)
+        obs = th.tensor(obs, device=device).float().reshape(shape).unsqueeze(0)
         # create batched graph
         graph_list = (
             [create_graph(obs[i]) for i in range(obs.shape[0])]
@@ -163,7 +163,7 @@ def evaluate_policy(env, policy, num_episodes=10, device="cuda"):
         if terminated or truncated:
             successes.append(info["success"])
             i += 1
-            obs_list.append(env.reset(seed=i)[0])
+            obs_list.append(env.reset()[0])
             pbar.update(1)
     success_rate = np.mean(successes)
     return success_rate

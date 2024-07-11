@@ -1,7 +1,7 @@
 import torch as th
 import torch.nn as nn
 from torch_geometric.nn import global_mean_pool
-from torch_geometric.nn import GCNConv, GATConv, RGATConv
+from torch_geometric.nn import GCNConv, GATConv, RGATConv, GraphSAGE
 from torch_geometric.nn import Linear
 from torch_geometric.data import Data
 from torch_geometric.data import Batch
@@ -51,6 +51,38 @@ class GCNPolicy(nn.Module):
         x = self.gcn_conv1(x, edge_index).relu()
         x = self.gcn_conv2(x, edge_index).relu()
         x = self.gcn_conv3(x, edge_index).relu()
+
+        # Apply the linear layer
+        x = self.lin(x)
+
+        # Apply the tanh activation function because the actions are in the range [-1, 1]
+        x = th.tanh(x)
+
+        # Apply global mean pooling
+        x = global_mean_pool(x, batch)
+
+        return x
+
+
+class GraphSagePolicy(nn.Module):
+    def __init__(self, obs_dims, act_dims):
+        super().__init__()
+
+        # Define the GraphSage layers
+        self.graph_sage_conv1 = GraphSAGE(obs_dims, 128)
+        self.graph_sage_conv2 = GraphSAGE(128, 128)
+        self.graph_sage_conv3 = GraphSAGE(128, 128)
+
+        # Define the linear layer
+        self.lin = Linear(128, act_dims)
+
+    def forward(self, data):
+        x, edge_index, batch = data.x, data.edge_index, data.batch
+
+        # Apply the GraphSage layers
+        x = self.graph_sage_conv1(x, edge_index).relu()
+        x = self.graph_sage_conv2(x, edge_index).relu()
+        x = self.graph_sage_conv3(x, edge_index).relu()
 
         # Apply the linear layer
         x = self.lin(x)

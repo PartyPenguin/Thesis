@@ -20,7 +20,11 @@ train:
   num_workers: 4
   lr: 0.001
   seed: 42
-  log_dir: logs/with_l2reg
+  log_dir: logs/output
   env_id: PickCube-v0
   iterations: 30000
   eval: false
+
+evaluate:
+  render: True
+  render_mode: human

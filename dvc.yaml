@@ -44,4 +44,29 @@ stages:
     - train.iterations
     - train.eval
     outs:
-    - logs/output
+    - logs/output/checkpoints/ckpt_best.pt
+
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - src/evaluate.py
+    - src/modules.py
+    - src/utils/util.py
+    - params.yaml
+    - logs/output/checkpoints/ckpt_best.pt
+    params:
+    - train.obs_mode
+    - train.control_mode
+    - train.render_mode
+    - train.num_steps
+    - train.batch_size
+    - train.num_workers
+    - train.lr
+    - train.seed
+    - train.log_dir
+    - train.env_id
+    - train.iterations
+    - train.eval
+    - evaluate.render
+    outs:
+    - logs/output/eval_results.json

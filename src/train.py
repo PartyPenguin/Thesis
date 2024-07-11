@@ -19,7 +19,7 @@ from dvclive import Live
 import mani_skill2.envs
 from mani_skill2.envs.sapien_env import BaseEnv
 from mani_skill2.utils.wrappers import RecordEpisode
-from modules import GATPolicy
+from src.modules import GATPolicy
 from src.utils.util import load_data, compute_nullspace_proj, evaluate_policy
 
 # Torch geometric imports
