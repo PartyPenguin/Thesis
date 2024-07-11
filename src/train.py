@@ -86,7 +86,7 @@ def train_step(policy, data, optim, loss_fn, env, device):
     ef_rot = R.from_quat(ef_rot.detach().cpu().numpy())
     ef_rot_true = R.from_quat(ef_rot_true.detach().cpu().numpy())
     rel_rot = ef_rot.inv() * ef_rot_true
-    angle = rel_rot.magnitude().to(device).float()
+    angle = th.as_tensor(rel_rot.magnitude()).to(device).float()
 
     # nullspace_norm = th.norm(nullspace_proj, dim=1)
     # default_pos_error = th.abs((DEFAULT_Q_POS[:-1] - q_pos)).float()
