@@ -85,3 +85,46 @@ stages:
       hash: md5
       md5: 5e957d6db47b622fafd814760e1688e8
       size: 219936768
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: logs/output/checkpoints/ckpt_best.pt
+      hash: md5
+      md5: 2fec690bd26b109e696d770be61d33ef
+      size: 320147
+    - path: params.yaml
+      hash: md5
+      md5: c9530890b510f17d1cfbc6243c3848f6
+      size: 568
+    - path: src/evaluate.py
+      hash: md5
+      md5: 1a944df836a3aa458ddc97e3375d91f8
+      size: 2469
+    - path: src/modules.py
+      hash: md5
+      md5: ea945c0c7733d59b5428e75072b11933
+      size: 6909
+    - path: src/utils/util.py
+      hash: md5
+      md5: daac8edc7cf997d052a88bd33907cdbb
+      size: 5333
+    params:
+      params.yaml:
+        evaluate.render: true
+        train.batch_size: 128
+        train.control_mode: pd_joint_delta_pos
+        train.env_id: PickCube-v0
+        train.eval: false
+        train.iterations: 30000
+        train.log_dir: logs/output
+        train.lr: 0.001
+        train.num_steps: 100000
+        train.num_workers: 4
+        train.obs_mode: state
+        train.render_mode: cameras
+        train.seed: 42
+    outs:
+    - path: logs/output/eval_results.json
+      hash: md5
+      md5: f8a89d3fedebc695e052e0799c8d7fd8
+      size: 22
