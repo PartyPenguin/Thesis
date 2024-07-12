@@ -49,8 +49,8 @@ stages:
     - params.yaml
     - logs/output/checkpoints/ckpt_best.pt
 metrics:
-  - logs/output/eval/success_rate.json:
-      cache: false
+- logs/output/eval/success_rate.json:
+    cache: false
 plots:
   - logs/output/plots/epoch_loss.json:
       cache: false
