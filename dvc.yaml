@@ -29,7 +29,6 @@ stages:
     - data/prepared/PickCube/act.npy
     - data/prepared/PickCube/obs.npy
     - data/prepared/PickCube/episode_map.npy
-
     params:
     - train.obs_mode
     - train.control_mode
@@ -43,6 +42,9 @@ stages:
     - train.env_id
     - train.iterations
     - train.eval
+    metrics:
+    - logs/output/current_success_rate.json:
+        cache: false
     outs:
     - logs/output/checkpoints/ckpt_best.pt
 
@@ -68,5 +70,9 @@ stages:
     - train.iterations
     - train.eval
     - evaluate.render
-    outs:
-    - logs/output/eval_results.json
+    metrics:
+    - logs/output/eval/success_rate.json:
+        cache: false
+    plots:
+    - logs/output/epoch_loss.json:
+        cache: false

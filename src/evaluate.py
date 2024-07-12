@@ -77,7 +77,7 @@ def main():
 
     print("Success rate", success_rate)
 
-    with open("logs/output/eval_results.json", "w") as f:
+    with open("logs/output/eval/success_rate.json", "w") as f:
         json.dump({"success_rate": success_rate}, f)
 
     env.close()

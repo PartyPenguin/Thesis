@@ -5,6 +5,7 @@ import os.path as osp
 from collections import deque
 from pathlib import Path
 import yaml
+import json
 
 # Related third-party imports
 import gymnasium as gym
@@ -96,7 +97,7 @@ def train_step(policy, data, optim, loss_fn, env, device):
         # + 0.0001 * nullspace_norm.mean()
         # + 0.0005 * (nullspace_proj.squeeze()[:, :-1] @ default_pos_error.T).mean()
         + 0.0005 * th.norm(ef_pos - ef_pos_true, dim=1).mean()
-        + 0.0001 * angle.mean()
+        + 0.0005 * angle.mean()
     )
     loss.backward()
     optim.step()
@@ -130,6 +131,8 @@ def main():
     best_epoch_loss = np.inf
     epoch = 0
     steps = 0
+    success_rate_list = []
+    epoch_loss_list = []
     pbar = tqdm(dataloader, total=config["train"]["iterations"], leave=False)
     env = RecordEpisode(
         env,
@@ -164,10 +167,17 @@ def main():
             if epoch % 5 == 0:
                 success_rate = evaluate_policy(env, policy)
                 writer.add_scalar("test/success_rate", success_rate, epoch)
-                # live.log_metric("test/success_rate", success_rate)
+                success_rate.append({"epoch": epoch, "success_rate": success_rate})
+                # Write the current success rate into a json array with the epoch number
+                with open(osp.join(ckpt_dir, "current_success_rate.json"), "w") as f:
+                    json.dump(success_rate, f)
 
+            epoch_loss_list.append({"epoch": epoch, "loss": epoch_loss})
             writer.add_scalar("train/mse_loss_epoch", epoch_loss, epoch)
-            # live.log_metric("train/mse_loss_epoch", epoch_loss)
+            # Write the current epoch loss into a json array with the epoch number
+            with open(osp.join(ckpt_dir, "current_epoch_loss.json"), "w") as f:
+                json.dump(epoch_loss_list, f)
+
             epoch += 1
 
         save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pt"))
