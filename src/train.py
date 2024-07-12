@@ -170,14 +170,17 @@ def main():
                 success_rate_list.append({"epoch": epoch, "success_rate": success_rate})
                 # Write the current success rate into a json array with the epoch number
                 with open(
-                    osp.join(config["log_dir"], "current_success_rate.json"), "w"
+                    osp.join(config["train"]["log_dir"], "current_success_rate.json"),
+                    "w",
                 ) as f:
                     json.dump(success_rate_list, f)
 
             epoch_loss_list.append({"epoch": epoch, "loss": epoch_loss})
             writer.add_scalar("train/mse_loss_epoch", epoch_loss, epoch)
             # Write the current epoch loss into a json array with the epoch number
-            with open(osp.join(config["log_dir"], "epoch_loss.json"), "w") as f:
+            with open(
+                osp.join(config["train"]["log_dir"], "epoch_loss.json"), "w"
+            ) as f:
                 json.dump(epoch_loss_list, f)
 
             epoch += 1
