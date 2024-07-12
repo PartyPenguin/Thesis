@@ -40,8 +40,6 @@ stages:
     plots:
     - logs/output/current_success_rate.json:
         cache: false
-    - logs/output/epoch_loss.json:
-        cache: false
     outs:
     - logs/output/checkpoints/ckpt_best.pt
 
