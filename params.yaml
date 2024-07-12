@@ -24,6 +24,12 @@ train:
   env_id: PickCube-v0
   iterations: 30000
   eval: false
+  model: GAT
+  model_params:
+    num_heads: 4
+    hidden_dim: 256
+    dropout: 0.1
+    
 
 evaluate:
   render: True

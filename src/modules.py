@@ -6,9 +6,14 @@ from torch_geometric.nn import Linear
 from torch_geometric.data import Data
 from torch_geometric.data import Batch
 from torch_geometric.nn import MeanAggregation
+import yaml
 
 
 device = "cuda" if th.cuda.is_available() else "cpu"
+
+# Load config from params.yaml
+with open("params.yaml", "r") as f:
+    config = yaml.safe_load(f)
 
 
 class TimeDistributed(nn.Module):
@@ -99,14 +104,30 @@ class GraphSAGEPolicy(nn.Module):
 class GATPolicy(nn.Module):
     def __init__(self, obs_dims, act_dims):
         super().__init__()
-
+        num_heads = config["train"]["model_params"]["num_heads"]
+        hidden_dim = config["train"]["model_params"]["hidden_dim"]
+        dropout = config["train"]["model_params"]["dropout"]
         # Define the GAT layers
-        self.gat_conv1 = GATConv(obs_dims, 64, heads=8, edge_dim=-1, dropout=0.5)
-        self.gat_conv2 = GATConv(64 * 8, 64, heads=8, edge_dim=-1, dropout=0.5)
-        self.gat_conv3 = GATConv(64 * 8, 64, heads=8, edge_dim=-1, dropout=0.5)
+        self.gat_conv1 = GATConv(
+            obs_dims, hidden_dim, heads=num_heads, edge_dim=-1, dropout=dropout
+        )
+        self.gat_conv2 = GATConv(
+            hidden_dim * num_heads,
+            hidden_dim,
+            heads=num_heads,
+            edge_dim=-1,
+            dropout=dropout,
+        )
+        self.gat_conv3 = GATConv(
+            hidden_dim * num_heads,
+            hidden_dim,
+            heads=num_heads,
+            edge_dim=-1,
+            dropout=dropout,
+        )
 
         # Define the linear layer
-        self.lin = Linear(64 * 8, act_dims)
+        self.lin = Linear(hidden_dim * num_heads, act_dims)
 
     def forward(self, data):
         x, edge_index, edge_attr, batch = (
