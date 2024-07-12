@@ -167,10 +167,10 @@ def main():
             if epoch % 5 == 0:
                 success_rate = evaluate_policy(env, policy)
                 writer.add_scalar("test/success_rate", success_rate, epoch)
-                success_rate.append({"epoch": epoch, "success_rate": success_rate})
+                success_rate_list.append({"epoch": epoch, "success_rate": success_rate})
                 # Write the current success rate into a json array with the epoch number
                 with open(osp.join(ckpt_dir, "current_success_rate.json"), "w") as f:
-                    json.dump(success_rate, f)
+                    json.dump(success_rate_list, f)
 
             epoch_loss_list.append({"epoch": epoch, "loss": epoch_loss})
             writer.add_scalar("train/mse_loss_epoch", epoch_loss, epoch)
