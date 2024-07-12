@@ -13,8 +13,8 @@ stages:
       size: 785616
     - path: data/prepared/PickCube/obs.npy
       hash: md5
-      md5: 5e957d6db47b622fafd814760e1688e8
-      size: 219936768
+      md5: 49ddda734d02419557743d4488c3a1cd
+      size: 263924096
     - path: params.yaml
       hash: md5
       md5: c9530890b510f17d1cfbc6243c3848f6
@@ -25,12 +25,12 @@ stages:
       size: 6908
     - path: src/train.py
       hash: md5
-      md5: d728a48cf6b0d618b22fd50e6d1ef6c4
-      size: 4722
+      md5: 6bbaeac0fc8766d25c1c942829862eb0
+      size: 6091
     - path: src/utils/util.py
       hash: md5
-      md5: daac8edc7cf997d052a88bd33907cdbb
-      size: 5333
+      md5: e76dadf69feeeb0e961fdc53172ee15c
+      size: 5923
     params:
       params.yaml:
         train.batch_size: 128
@@ -48,8 +48,12 @@ stages:
     outs:
     - path: logs/output/checkpoints/ckpt_best.pt
       hash: md5
-      md5: f73c3c28b78c1d3cccf7a476dcf2fbf3
-      size: 2246346
+      md5: 906a17ce89ae4c50d4b0c7b7f0f745fd
+      size: 2260682
+    - path: logs/output/current_success_rate.json
+      hash: md5
+      md5: 90023e67fe71d8418aa426eed4a61df8
+      size: 286
   prepare:
     cmd: python src/prepare.py
     deps:

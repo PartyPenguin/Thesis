@@ -13,6 +13,7 @@ import json
 from torch_geometric.data import Batch
 from typing import List, Tuple
 import yaml
+from pathlib import Path
 
 # Load config from params.yaml
 with open("params.yaml", "r") as f:
@@ -77,6 +78,8 @@ def main():
 
     print("Success rate", success_rate)
 
+    # Save success rate to file
+    Path("logs/output/eval").mkdir(parents=True, exist_ok=True)
     with open("logs/output/eval/success_rate.json", "w") as f:
         json.dump({"success_rate": success_rate}, f)
 
