@@ -175,7 +175,7 @@ def main():
             epoch_loss_list.append({"epoch": epoch, "loss": epoch_loss})
             writer.add_scalar("train/mse_loss_epoch", epoch_loss, epoch)
             # Write the current epoch loss into a json array with the epoch number
-            with open(osp.join(ckpt_dir, "current_epoch_loss.json"), "w") as f:
+            with open(osp.join(ckpt_dir, "epoch_loss.json"), "w") as f:
                 json.dump(epoch_loss_list, f)
 
             epoch += 1
