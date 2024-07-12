@@ -42,7 +42,7 @@ stages:
     - train.env_id
     - train.iterations
     - train.eval
-    metrics:
+    plots:
     - logs/output/current_success_rate.json:
         cache: false
     outs:
