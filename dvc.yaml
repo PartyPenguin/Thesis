@@ -37,9 +37,6 @@ stages:
     - train.env_id
     - train.model
     - train.model_params
-    plots:
-    - logs/output/current_success_rate.json:
-        cache: false
     outs:
     - logs/output/checkpoints/ckpt_best.pt
 
@@ -51,9 +48,11 @@ stages:
     - src/utils/util.py
     - params.yaml
     - logs/output/checkpoints/ckpt_best.pt
-    metrics:
-    - logs/output/eval/success_rate.json:
-        cache: false
-    plots:
-    - logs/output/epoch_loss.json:
-        cache: false
+metrics:
+- logs/output/eval/success_rate.json:
+    cache: false
+plots:
+- logs/output/plots/epoch_loss.json:
+    cache: false
+- logs/output/plots/current_success_rate.json:
+    cache: false

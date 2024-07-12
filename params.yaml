@@ -21,6 +21,7 @@ train:
   lr: 0.001
   seed: 42
   log_dir: logs/output
+  plot_dir: logs/output/plots
   env_id: PickCube-v0
   iterations: 30000
   eval: false
