@@ -79,15 +79,15 @@ def train_step(policy, data, optim, loss_fn, env, device):
     #     q_pos, pred_actions, env=env, device=device
     # ).float()
 
-    ef_pos, ef_rot = compute_fk(q_pos + pred_actions, env=env, device=device)
-    ef_pos_true, ef_rot_true = compute_fk(q_pos + actions, env=env, device=device)
-    ef_pos = ef_pos + base_pose[:, :3]
-    ef_pos_true = ef_pos_true + base_pose[:, :3]
+    # ef_pos, ef_rot = compute_fk(q_pos + pred_actions, env=env, device=device)
+    # ef_pos_true, ef_rot_true = compute_fk(q_pos + actions, env=env, device=device)
+    # ef_pos = ef_pos + base_pose[:, :3]
+    # ef_pos_true = ef_pos_true + base_pose[:, :3]
 
-    ef_rot = R.from_quat(ef_rot.detach().cpu().numpy())
-    ef_rot_true = R.from_quat(ef_rot_true.detach().cpu().numpy())
-    rel_rot = ef_rot.inv() * ef_rot_true
-    angle = th.as_tensor(rel_rot.magnitude()).to(device).float()
+    # ef_rot = R.from_quat(ef_rot.detach().cpu().numpy())
+    # ef_rot_true = R.from_quat(ef_rot_true.detach().cpu().numpy())
+    # rel_rot = ef_rot.inv() * ef_rot_true
+    # angle = th.as_tensor(rel_rot.magnitude()).to(device).float()
 
     # nullspace_norm = th.norm(nullspace_proj, dim=1)
     # default_pos_error = th.abs((DEFAULT_Q_POS[:-1] - q_pos)).float()
@@ -96,8 +96,8 @@ def train_step(policy, data, optim, loss_fn, env, device):
         loss_fn(actions, pred_actions)
         # + 0.0001 * nullspace_norm.mean()
         # + 0.0005 * (nullspace_proj.squeeze()[:, :-1] @ default_pos_error.T).mean()
-        + 0.0005 * th.norm(ef_pos - ef_pos_true, dim=1).mean()
-        + 0.0005 * angle.mean()
+        # + 0.0005 * th.norm(ef_pos - ef_pos_true, dim=1).mean()
+        # + 0.0005 * angle.mean()
     )
     loss.backward()
     optim.step()
