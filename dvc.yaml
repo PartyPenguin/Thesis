@@ -3,62 +3,62 @@ stages:
   prepare:
     cmd: python src/prepare.py
     deps:
-      - src/prepare.py
-      - params.yaml
-      - data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
+    - src/prepare.py
+    - params.yaml
+    - data/raw/PickCube/trajectory.state.pd_joint_delta_pos.h5
     params:
-      - prepare.load_count
-      - prepare.transformations
-      - raw_data_path
-      - prepared_data_path
-      - data_file
+    - prepare.load_count
+    - prepare.transformations
+    - raw_data_path
+    - prepared_data_path
+    - data_file
     outs:
-      - data/prepared/PickCube/act.npy
-      - data/prepared/PickCube/obs.npy
-      - data/prepared/PickCube/episode_map.npy
+    - data/prepared/PickCube/act.npy
+    - data/prepared/PickCube/obs.npy
+    - data/prepared/PickCube/episode_map.npy
 
   train:
     cmd: python src/train.py
     deps:
-      - src/train.py
-      - src/modules.py
-      - src/utils/util.py
-      - params.yaml
-      - data/prepared/PickCube/act.npy
-      - data/prepared/PickCube/obs.npy
-      - data/prepared/PickCube/episode_map.npy
+    - src/train.py
+    - src/modules.py
+    - src/utils/util.py
+    - params.yaml
+    - data/prepared/PickCube/act.npy
+    - data/prepared/PickCube/obs.npy
+    - data/prepared/PickCube/episode_map.npy
     params:
-      - train.num_steps
-      - train.batch_size
-      - train.lr
-      - train.seed
-      - train.env_id
-      - train.model
-      - train.model_params
+    - train.num_steps
+    - train.batch_size
+    - train.lr
+    - train.seed
+    - train.env_id
+    - train.model
+    - train.model_params
     outs:
-      - logs/output/checkpoints/ckpt_best.pt
-      - logs/output/plots/current_success_rate.json
-      - logs/output/plots/epoch_loss.json
+    - logs/output/checkpoints/ckpt_best.pt
+    - logs/output/plots/current_success_rate.json
+    - logs/output/plots/epoch_loss.json
 
   evaluate:
     cmd: python src/evaluate.py
     deps:
-      - src/evaluate.py
-      - src/modules.py
-      - src/utils/util.py
-      - params.yaml
-      - logs/output/checkpoints/ckpt_best.pt
+    - src/evaluate.py
+    - src/modules.py
+    - src/utils/util.py
+    - params.yaml
+    - logs/output/checkpoints/ckpt_best.pt
     metrics:
-      - logs/output/eval/success_rate.json
+    - logs/output/eval/success_rate.json
 
 plots:
-  - logs/output/plots/current_success_rate.json:
-      title: "Successrate per epoch"
-      template: simple
-      x: epoch
-      y: success_rate
-  - logs/output/plots/epoch_loss.json:
-      title: "Loss per epoch"
-      template: simple
-      x: epoch
-      y: loss
+- logs/output/plots/current_success_rate.json:
+    title: Successrate per epoch
+    template: simple
+    x: epoch
+    y: success_rate
+- logs/output/plots/epoch_loss.json:
+    title: Loss per epoch
+    template: simple
+    x: epoch
+    y: loss
