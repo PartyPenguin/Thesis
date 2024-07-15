@@ -48,7 +48,7 @@ stages:
       - logs/output/checkpoints/ckpt_best.pt
     metrics:
       - logs/output/eval/success_rate.json
-    plots:
+    outs:
       - logs/output/plots/current_success_rate.json
       - logs/output/plots/epoch_loss.json
 

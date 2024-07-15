@@ -17,8 +17,8 @@ stages:
       size: 263924096
     - path: params.yaml
       hash: md5
-      md5: 1ee305072aae4bb2f2becb8fc632e9de
-      size: 686
+      md5: 905517f529a72061262d5c29e2f8c7d6
+      size: 681
     - path: src/modules.py
       hash: md5
       md5: b2cfa0a3d8045459c95a7c8aeb982626
@@ -33,21 +33,21 @@ stages:
       size: 5923
     params:
       params.yaml:
-        train.batch_size: 128
+        train.batch_size: 64
         train.env_id: PickCube-v0
         train.lr: 0.001
         train.model: GAT
         train.model_params:
           num_heads: 4
-          hidden_dim: 256
+          hidden_dim: 32
           dropout: 0.1
         train.num_steps: 100000
         train.seed: 42
     outs:
     - path: logs/output/checkpoints/ckpt_best.pt
       hash: md5
-      md5: cce15c1f77b6e44a7fe54065da9666c6
-      size: 8685258
+      md5: 7b6fb7c44d3a8b81fb165aba3f4dd8eb
+      size: 194698
   prepare:
     cmd: python src/prepare.py
     deps:
@@ -57,8 +57,8 @@ stages:
       size: 73559050
     - path: params.yaml
       hash: md5
-      md5: 41f09e5fab362c8fa9bc89027be4e791
-      size: 683
+      md5: 905517f529a72061262d5c29e2f8c7d6
+      size: 681
     - path: src/prepare.py
       hash: md5
       md5: 9314252db46fb57afd40953d95cbd4ba
