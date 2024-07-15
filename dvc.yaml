@@ -37,6 +37,8 @@ stages:
       - train.model_params
     outs:
       - logs/output/checkpoints/ckpt_best.pt
+      - logs/output/plots/current_success_rate.json
+      - logs/output/plots/epoch_loss.json
 
   evaluate:
     cmd: python src/evaluate.py
@@ -48,9 +50,6 @@ stages:
       - logs/output/checkpoints/ckpt_best.pt
     metrics:
       - logs/output/eval/success_rate.json
-    outs:
-      - logs/output/plots/current_success_rate.json
-      - logs/output/plots/epoch_loss.json
 
 plots:
   - logs/output/plots/current_success_rate.json:
