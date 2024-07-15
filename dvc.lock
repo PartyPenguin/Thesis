@@ -57,8 +57,8 @@ stages:
       size: 73559050
     - path: params.yaml
       hash: md5
-      md5: 1ee305072aae4bb2f2becb8fc632e9de
-      size: 686
+      md5: 41f09e5fab362c8fa9bc89027be4e791
+      size: 683
     - path: src/prepare.py
       hash: md5
       md5: 9314252db46fb57afd40953d95cbd4ba

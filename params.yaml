@@ -27,11 +27,11 @@ train:
   eval: false
   model: GAT
   model_params:
-    num_heads: 4
+    num_heads: 8
     hidden_dim: 256
     dropout: 0.1
-    
+
 
 evaluate:
-  render: True
+  render: true
   render_mode: human
