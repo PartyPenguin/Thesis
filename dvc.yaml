@@ -50,18 +50,18 @@ stages:
     - logs/output/checkpoints/ckpt_best.pt
 
 metrics:
-  - logs/output/eval/success_rate.json
-
+- logs/output/eval/success_rate.json
 plots:
-  - Successrate per epoch:
-      template: simple
-      x: epoch
-      y:
-        logs/output/plots/current_success_rate.json: success_rate
-  - MSE Loss per epoch:
-      template: simple
-      x: epoch
-      y:
-        logs/output/plots/epoch_loss.json: epoch_loss
+- Successrate per epoch:
+    template: simple
+    x: epoch
+    y:
+      logs/output/plots/current_success_rate.json: success_rate
+- Loss per epoch:
+    template: simple
+    x: epoch
+    y:
+      logs/output/plots/epoch_loss.json: loss
+
 
 

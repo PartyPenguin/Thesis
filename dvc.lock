@@ -17,16 +17,16 @@ stages:
       size: 263924096
     - path: params.yaml
       hash: md5
-      md5: c9530890b510f17d1cfbc6243c3848f6
-      size: 568
+      md5: 1ee305072aae4bb2f2becb8fc632e9de
+      size: 686
     - path: src/modules.py
       hash: md5
-      md5: d9d532b28e25b91854e289be1dfb5d94
-      size: 6908
+      md5: b2cfa0a3d8045459c95a7c8aeb982626
+      size: 7483
     - path: src/train.py
       hash: md5
-      md5: 6bbaeac0fc8766d25c1c942829862eb0
-      size: 6091
+      md5: 9769358c6528743f5ed15e9e6ac898f7
+      size: 6245
     - path: src/utils/util.py
       hash: md5
       md5: e76dadf69feeeb0e961fdc53172ee15c
@@ -34,26 +34,20 @@ stages:
     params:
       params.yaml:
         train.batch_size: 128
-        train.control_mode: pd_joint_delta_pos
         train.env_id: PickCube-v0
-        train.eval: false
-        train.iterations: 30000
-        train.log_dir: logs/output
         train.lr: 0.001
+        train.model: GAT
+        train.model_params:
+          num_heads: 4
+          hidden_dim: 256
+          dropout: 0.1
         train.num_steps: 100000
-        train.num_workers: 4
-        train.obs_mode: state
-        train.render_mode: cameras
         train.seed: 42
     outs:
     - path: logs/output/checkpoints/ckpt_best.pt
       hash: md5
-      md5: 906a17ce89ae4c50d4b0c7b7f0f745fd
-      size: 2260682
-    - path: logs/output/current_success_rate.json
-      hash: md5
-      md5: 90023e67fe71d8418aa426eed4a61df8
-      size: 286
+      md5: cce15c1f77b6e44a7fe54065da9666c6
+      size: 8685258
   prepare:
     cmd: python src/prepare.py
     deps:
@@ -63,8 +57,8 @@ stages:
       size: 73559050
     - path: params.yaml
       hash: md5
-      md5: c9530890b510f17d1cfbc6243c3848f6
-      size: 568
+      md5: 1ee305072aae4bb2f2becb8fc632e9de
+      size: 686
     - path: src/prepare.py
       hash: md5
       md5: 9314252db46fb57afd40953d95cbd4ba
@@ -94,41 +88,21 @@ stages:
     deps:
     - path: logs/output/checkpoints/ckpt_best.pt
       hash: md5
-      md5: f73c3c28b78c1d3cccf7a476dcf2fbf3
-      size: 2246346
+      md5: cce15c1f77b6e44a7fe54065da9666c6
+      size: 8685258
     - path: params.yaml
       hash: md5
-      md5: c9530890b510f17d1cfbc6243c3848f6
-      size: 568
+      md5: 1ee305072aae4bb2f2becb8fc632e9de
+      size: 686
     - path: src/evaluate.py
       hash: md5
-      md5: 7e2cb629e198ee4c5444ab903f321d59
-      size: 2467
+      md5: 15136e1da664c6dbe05191a4df3077a9
+      size: 2593
     - path: src/modules.py
       hash: md5
-      md5: d9d532b28e25b91854e289be1dfb5d94
-      size: 6908
+      md5: b2cfa0a3d8045459c95a7c8aeb982626
+      size: 7483
     - path: src/utils/util.py
       hash: md5
-      md5: daac8edc7cf997d052a88bd33907cdbb
-      size: 5333
-    params:
-      params.yaml:
-        evaluate.render: true
-        train.batch_size: 128
-        train.control_mode: pd_joint_delta_pos
-        train.env_id: PickCube-v0
-        train.eval: false
-        train.iterations: 30000
-        train.log_dir: logs/output
-        train.lr: 0.001
-        train.num_steps: 100000
-        train.num_workers: 4
-        train.obs_mode: state
-        train.render_mode: cameras
-        train.seed: 42
-    outs:
-    - path: logs/output/eval_results.json
-      hash: md5
-      md5: 4dcff83c88806fc2f1b0dc3b78bc49d8
-      size: 22
+      md5: e76dadf69feeeb0e961fdc53172ee15c
+      size: 5923

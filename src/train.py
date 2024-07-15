@@ -168,6 +168,8 @@ def main():
                 success_rate = evaluate_policy(env, policy)
                 writer.add_scalar("test/success_rate", success_rate, epoch)
                 success_rate_list.append({"epoch": epoch, "success_rate": success_rate})
+
+                Path("logs/output/plots").mkdir(parents=True, exist_ok=True)
                 # Write the current success rate into a json array with the epoch number
                 with open(
                     osp.join(config["train"]["plot_dir"], "current_success_rate.json"),
@@ -178,6 +180,8 @@ def main():
             epoch_loss_list.append({"epoch": epoch, "loss": epoch_loss})
             writer.add_scalar("train/mse_loss_epoch", epoch_loss, epoch)
             # Write the current epoch loss into a json array with the epoch number
+
+            Path("logs/output/plots").mkdir(parents=True, exist_ok=True)
             with open(
                 osp.join(config["train"]["plot_dir"], "epoch_loss.json"), "w"
             ) as f:
