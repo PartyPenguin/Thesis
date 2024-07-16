@@ -1,3 +1,6 @@
 [submodule "ManiSkill2"]
 	path = ManiSkill2
 	url = git@github.com:PartyPenguin/ManiSkill.git
+[submodule "ManiSkill"]
+	path = ManiSkill
+	url = git@github.com:PartyPenguin/ManiSkill.git
