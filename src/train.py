@@ -18,7 +18,7 @@ from dvclive import Live
 from scipy.spatial.transform import Rotation as R
 
 # Local application/library-specific imports
-import mani_skill2.envs
+
 from mani_skill2.envs.sapien_env import BaseEnv
 from mani_skill2.utils.wrappers import RecordEpisode
 from src.modules import GATPolicy, GraphSAGEPolicy, MLPBaseline
