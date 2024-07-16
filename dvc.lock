@@ -17,16 +17,16 @@ stages:
       size: 263924096
     - path: params.yaml
       hash: md5
-      md5: cc19bff78d474da451b61a0c4ab89649
+      md5: 63c94ce8d0b8b6b6ceb2586c6e626553
       size: 682
     - path: src/modules.py
       hash: md5
-      md5: b2cfa0a3d8045459c95a7c8aeb982626
-      size: 7483
+      md5: 5b0085e2bf823821c7592599f1221c19
+      size: 8172
     - path: src/train.py
       hash: md5
-      md5: 9769358c6528743f5ed15e9e6ac898f7
-      size: 6245
+      md5: 2a00aeaecce00dea08acc8ecfff94e4b
+      size: 6417
     - path: src/utils/util.py
       hash: md5
       md5: e76dadf69feeeb0e961fdc53172ee15c
@@ -36,7 +36,7 @@ stages:
         train.batch_size: 64
         train.env_id: PickCube-v0
         train.lr: 0.001
-        train.model: GAT
+        train.model: MLP
         train.model_params:
           num_heads: 4
           hidden_dim: 256
@@ -46,16 +46,16 @@ stages:
     outs:
     - path: logs/output/checkpoints/ckpt_best.pt
       hash: md5
-      md5: 41047b5e9b777089ed3b76b272054aae
-      size: 8685258
+      md5: 262735e6c40e69f1d317fc6bf77c92bd
+      size: 621258
     - path: logs/output/plots/current_success_rate.json
       hash: md5
-      md5: b56b13796c217e81e0e530cb9e2d702d
+      md5: 5fd13c6177e48aa4f4d2f146ffbccb08
       size: 142
     - path: logs/output/plots/epoch_loss.json
       hash: md5
-      md5: f22f8836465b285ab9f717f8a2ed631e
-      size: 897
+      md5: 164abda8856b4ac7a2ef4f3a2420730b
+      size: 896
   prepare:
     cmd: python src/prepare.py
     deps:
@@ -65,7 +65,7 @@ stages:
       size: 73559050
     - path: params.yaml
       hash: md5
-      md5: cc19bff78d474da451b61a0c4ab89649
+      md5: 63c94ce8d0b8b6b6ceb2586c6e626553
       size: 682
     - path: src/prepare.py
       hash: md5
@@ -96,11 +96,11 @@ stages:
     deps:
     - path: logs/output/checkpoints/ckpt_best.pt
       hash: md5
-      md5: 41047b5e9b777089ed3b76b272054aae
-      size: 8685258
+      md5: 262735e6c40e69f1d317fc6bf77c92bd
+      size: 621258
     - path: params.yaml
       hash: md5
-      md5: cc19bff78d474da451b61a0c4ab89649
+      md5: 63c94ce8d0b8b6b6ceb2586c6e626553
       size: 682
     - path: src/evaluate.py
       hash: md5
@@ -108,8 +108,8 @@ stages:
       size: 2593
     - path: src/modules.py
       hash: md5
-      md5: b2cfa0a3d8045459c95a7c8aeb982626
-      size: 7483
+      md5: 5b0085e2bf823821c7592599f1221c19
+      size: 8172
     - path: src/utils/util.py
       hash: md5
       md5: e76dadf69feeeb0e961fdc53172ee15c
@@ -117,5 +117,5 @@ stages:
     outs:
     - path: logs/output/eval/success_rate.json
       hash: md5
-      md5: be6a9b344bcfc7d80c95f62f5a979ad0
+      md5: 3a61eef975855a15d60e0749d59e819e
       size: 22

@@ -1,5 +1,6 @@
-from src.dataset import GeometricManiSkill2Dataset
+from src.dataset import GeometricManiSkill2Dataset, ManiSkill2Dataset
 from torch_geometric.loader import DataLoader as GeometricDataLoader
+from torch.utils.data import DataLoader
 import torch as th
 from sapien.core.pysapien import PinocchioModel
 import numpy as np
@@ -27,15 +28,26 @@ def load_data(env, config):
     Returns:
         tuple: A tuple containing the data loader and the dataset object.
     """
-    dataset = GeometricManiSkill2Dataset(config, root="", env=env)
-    dataloader = GeometricDataLoader(
-        dataset,
-        batch_size=config["train"]["batch_size"],
-        num_workers=config["train"]["num_workers"],
-        pin_memory=True,
-        drop_last=True,
-        shuffle=True,
-    )
+    if config["train"]["model"] == "MLP":
+        dataset = ManiSkill2Dataset(config, root="", env=env)
+        dataloader = DataLoader(
+            dataset,
+            batch_size=config["train"]["batch_size"],
+            num_workers=config["train"]["num_workers"],
+            pin_memory=True,
+            drop_last=True,
+            shuffle=True,
+        )
+    else:
+        dataset = GeometricManiSkill2Dataset(config, root="", env=env)
+        dataloader = GeometricDataLoader(
+            dataset,
+            batch_size=config["train"]["batch_size"],
+            num_workers=config["train"]["num_workers"],
+            pin_memory=True,
+            drop_last=True,
+            shuffle=True,
+        )
     return dataloader, dataset
 
 

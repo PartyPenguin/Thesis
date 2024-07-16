@@ -48,7 +48,7 @@ DEFAULT_Q_POS = (
     .float()
 )
 
-MODEL_MAP = {"gat": GATPolicy, "mlp": MLPBaseline}
+MODEL_MAP = {"GAT": GATPolicy, "MLP": MLPBaseline}
 
 
 def set_seed(seed):
@@ -64,9 +64,12 @@ def train_step(policy, data, optim, loss_fn, env, device):
     optim.zero_grad()
     policy.train()
 
-    graph, obs, actions = data
+    if isinstance(policy, MLPBaseline):
+        obs, actions = data
+    else:
+        graph, obs, actions = data
+        graph = graph.to(device)
 
-    graph = graph.to(device)
     obs = obs.to(device)
     actions = actions.to(device)
 
@@ -125,10 +128,12 @@ def main():
     )
 
     dataloader, dataset = load_data(env=env, config=config)
-    tmp_graph, obs, actions = dataset[0]
-    tmp_graph = Batch.from_data_list([tmp_graph])
+    if config["train"]["model"] == "MLP":
+        obs, actions = dataset[0]
+    else:
+        _, obs, actions = dataset[0]
 
-    policy = MODEL_MAP[config["train"]["model"]](obs.shape[2], actions.shape[0]).to(
+    policy = MODEL_MAP[config["train"]["model"]](obs.shape[-1], actions.shape[0]).to(
         device
     )
 

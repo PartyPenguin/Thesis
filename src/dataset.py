@@ -2,6 +2,7 @@ import h5py
 import numpy as np
 import torch as th
 from tqdm import tqdm
+from torch.utils.data import Dataset
 from torch_geometric.data import Dataset as GeometricDataset
 from torch_geometric.data import Data, HeteroData
 from torch_geometric.utils import to_networkx
@@ -454,9 +455,11 @@ class GeometricManiSkill2Dataset(GeometricDataset):
         pre_transform=None,
     ):
         super(GeometricManiSkill2Dataset, self).__init__(root, transform, pre_transform)
-        self.actions = np.load(config["prepared_data_path"] + "act.npy")
-        self.observations = np.load(config["prepared_data_path"] + "obs.npy")
-        self.episode_map = np.load(config["prepared_data_path"] + "episode_map.npy")
+        self.actions = np.load(config["prepared_graph_data_path"] + "act.npy")
+        self.observations = np.load(config["prepared_graph_data_path"] + "obs.npy")
+        self.episode_map = np.load(
+            config["prepared_graph_data_path"] + "episode_map.npy"
+        )
 
     def len(self):
         return len(self.observations)
@@ -497,3 +500,19 @@ class GeometricManiSkill2Dataset(GeometricDataset):
 
         # Return the observation tensor and the action for the current index
         return create_graph(obs), obs, action
+
+
+class ManiSkill2Dataset(Dataset):
+    def __init__(self, config, root, env: BaseEnv, transform=None, pre_transform=None):
+        self.config = config
+        self.env = env
+        self.transform = transform
+        self.pre_transform = pre_transform
+        self.actions = np.load(config["prepared_mlp_data_path"] + "act.npy")
+        self.observations = np.load(config["prepared_mlp_data_path"] + "obs.npy")
+
+    def __len__(self):
+        return len(self.observations)
+
+    def __getitem__(self, idx):
+        return self.observations[idx], self.actions[idx]

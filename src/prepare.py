@@ -159,15 +159,24 @@ def prepare(config):
         render_mode=config["render_mode"],
     )
     obs, act, episode_map = load_raw_data(config)
-    obs, obs_shape = base_transform_obs(obs, env)
-    obs = apply_transformations(obs, config).reshape(obs_shape)
 
-    # Create a directory to save the prepared data
-    Path(config["prepared_data_path"]).mkdir(parents=True, exist_ok=True)
+    if config["train"]["model"] != "MLP":
+        obs, obs_shape = base_transform_obs(obs, env)
+        obs = apply_transformations(obs, config).reshape(obs_shape)
 
-    np.save(config["prepared_data_path"] + "obs.npy", obs)
-    np.save(config["prepared_data_path"] + "act.npy", act)
-    np.save(config["prepared_data_path"] + "episode_map.npy", episode_map)
+        # Create a directory to save the prepared data
+        Path(config["prepared_graph_data_path"]).mkdir(parents=True, exist_ok=True)
+
+        np.save(config["prepared_graph_data_path"] + "obs.npy", obs)
+        np.save(config["prepared_graph_data_path"] + "act.npy", act)
+        np.save(config["prepared_graph_data_path"] + "episode_map.npy", episode_map)
+
+    else:
+        obs = apply_transformations(obs, config)
+        Path(config["prepared_mlp_data_path"]).mkdir(parents=True, exist_ok=True)
+
+        np.save(config["prepared_mlp_data_path"] + "obs.npy", obs)
+        np.save(config["prepared_mlp_data_path"] + "act.npy", act)
 
 
 with open("params.yaml", "r") as f:
