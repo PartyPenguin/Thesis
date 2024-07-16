@@ -28,8 +28,8 @@ train:
   model: GAT
   model_params:
     num_heads: 4
-    hidden_dim: 32
-    dropout: 0.1
+    hidden_dim: 256
+    dropout: 0.5
 
 
 evaluate:
