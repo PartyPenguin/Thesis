@@ -21,7 +21,7 @@ from scipy.spatial.transform import Rotation as R
 import mani_skill2.envs
 from mani_skill2.envs.sapien_env import BaseEnv
 from mani_skill2.utils.wrappers import RecordEpisode
-from src.modules import GATPolicy, GraphSAGEPolicy
+from src.modules import GATPolicy, GraphSAGEPolicy, MLPBaseline
 from src.utils.util import (
     load_data,
     compute_nullspace_proj,
@@ -48,6 +48,8 @@ DEFAULT_Q_POS = (
     .float()
 )
 
+MODEL_MAP = {"gat": GATPolicy, "mlp": MLPBaseline}
+
 
 def set_seed(seed):
     th.manual_seed(seed)
@@ -68,7 +70,10 @@ def train_step(policy, data, optim, loss_fn, env, device):
     obs = obs.to(device)
     actions = actions.to(device)
 
-    pred_actions = policy(graph)
+    if isinstance(policy, MLPBaseline):
+        pred_actions = policy(obs)
+    else:
+        pred_actions = policy(graph)
 
     q_pos = obs[:, -1, :, 0]
     q_pos = q_pos.float()
@@ -122,7 +127,10 @@ def main():
     dataloader, dataset = load_data(env=env, config=config)
     tmp_graph, obs, actions = dataset[0]
     tmp_graph = Batch.from_data_list([tmp_graph])
-    policy = GATPolicy(obs.shape[2], actions.shape[0]).to(device)
+
+    policy = MODEL_MAP[config["train"]["model"]](obs.shape[2], actions.shape[0]).to(
+        device
+    )
 
     loss_fn = nn.MSELoss()
 

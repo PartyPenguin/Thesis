@@ -260,3 +260,26 @@ class RGATPolicy(nn.Module):
         x = global_mean_pool(x, batch)
 
         return x
+
+
+class MLPBaseline(nn.Module):
+    def __init__(self, obs_dims, output_dim):
+        super().__init__()
+
+        hidden_dim = config["train"]["model_params"]["hidden_dim"]
+        dropout = config["train"]["model_params"]["dropout"]
+
+        # Define the linear layers
+        self.lin1 = nn.Linear(obs_dims, hidden_dim)
+        self.lin2 = nn.Linear(hidden_dim, hidden_dim)
+        self.lin3 = nn.Linear(hidden_dim, output_dim)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        x = th.relu(self.lin1(x))
+        x = self.dropout(x)
+        x = th.relu(self.lin2(x))
+        x = self.dropout(x)
+        x = self.lin3(x)
+        x = th.tanh(x)
+        return x
