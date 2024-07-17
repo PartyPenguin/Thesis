@@ -10,7 +10,7 @@ stages:
     - prepare.load_count
     - prepare.transformations
     - raw_data_path
-    - prepared_data_path
+    - prepared_graph_data_path
     - data_file
     outs:
     - data/prepared/PickCube/act.npy
