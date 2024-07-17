@@ -13,9 +13,9 @@ stages:
     - prepared_graph_data_path
     - data_file
     outs:
-    - data/prepared/PickCube/act.npy
-    - data/prepared/PickCube/obs.npy
-    - data/prepared/PickCube/episode_map.npy
+    - data/prepared/graph/PickCube/act.npy
+    - data/prepared/graph/PickCube/obs.npy
+    - data/prepared/graph/PickCube/episode_map.npy
 
   train:
     cmd: python src/train.py
