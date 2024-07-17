@@ -18,10 +18,10 @@ from dvclive import Live
 from scipy.spatial.transform import Rotation as R
 
 # Local application/library-specific imports
-
+import mani_skill2.envs
 from mani_skill2.envs.sapien_env import BaseEnv
 from mani_skill2.utils.wrappers import RecordEpisode
-from src.modules import GATPolicy, GraphSAGEPolicy, MLPBaseline
+from src.modules import GATPolicy, GraphSAGEPolicy
 from src.utils.util import (
     load_data,
     compute_nullspace_proj,
@@ -48,8 +48,6 @@ DEFAULT_Q_POS = (
     .float()
 )
 
-MODEL_MAP = {"GAT": GATPolicy, "MLP": MLPBaseline}
-
 
 def set_seed(seed):
     th.manual_seed(seed)
@@ -64,19 +62,13 @@ def train_step(policy, data, optim, loss_fn, env, device):
     optim.zero_grad()
     policy.train()
 
-    if isinstance(policy, MLPBaseline):
-        obs, actions = data
-    else:
-        graph, obs, actions = data
-        graph = graph.to(device)
+    graph, obs, actions = data
 
+    graph = graph.to(device)
     obs = obs.to(device)
     actions = actions.to(device)
 
-    if isinstance(policy, MLPBaseline):
-        pred_actions = policy(obs)
-    else:
-        pred_actions = policy(graph)
+    pred_actions = policy(graph)
 
     q_pos = obs[:, -1, :, 0]
     q_pos = q_pos.float()
@@ -128,14 +120,9 @@ def main():
     )
 
     dataloader, dataset = load_data(env=env, config=config)
-    if config["train"]["model"] == "MLP":
-        obs, actions = dataset[0]
-    else:
-        _, obs, actions = dataset[0]
-
-    policy = MODEL_MAP[config["train"]["model"]](obs.shape[-1], actions.shape[0]).to(
-        device
-    )
+    tmp_graph, obs, actions = dataset[0]
+    tmp_graph = Batch.from_data_list([tmp_graph])
+    policy = GATPolicy(obs.shape[2], actions.shape[0]).to(device)
 
     loss_fn = nn.MSELoss()
 

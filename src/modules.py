@@ -146,7 +146,7 @@ class GATPolicy(nn.Module):
         x = global_mean_pool(x, batch)
 
         # Apply the linear layer
-        x = self.lin(x)
+        # x = self.lin(x)
         # Apply the tanh activation function because the actions are in the range [-1, 1]
         x = th.tanh(x)
 
@@ -277,9 +277,7 @@ class MLPBaseline(nn.Module):
 
     def forward(self, x):
         x = th.relu(self.lin1(x))
-        x = self.dropout(x)
         x = th.relu(self.lin2(x))
-        x = self.dropout(x)
         x = self.lin3(x)
         x = th.tanh(x)
         return x

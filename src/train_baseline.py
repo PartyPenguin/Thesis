@@ -74,7 +74,7 @@ class Policy(nn.Module):
         self,
         obs_dims,
         act_dims,
-        hidden_units=[128, 128],
+        hidden_units=[256, 256],
         activation=nn.ReLU,
     ):
         super().__init__()
@@ -111,7 +111,7 @@ def parse_args():
         help="path for where logs, checkpoints, and videos are saved",
     )
     parser.add_argument(
-        "--steps", type=int, help="number of training steps", default=30000
+        "--steps", type=int, help="number of training steps", default=60000
     )
     parser.add_argument(
         "--eval", action="store_true", help="whether to only evaluate policy"

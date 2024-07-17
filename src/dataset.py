@@ -508,8 +508,12 @@ class ManiSkill2Dataset(Dataset):
         self.env = env
         self.transform = transform
         self.pre_transform = pre_transform
-        self.actions = np.load(config["prepared_mlp_data_path"] + "act.npy")
-        self.observations = np.load(config["prepared_mlp_data_path"] + "obs.npy")
+        self.actions = th.from_numpy(
+            np.load(config["prepared_mlp_data_path"] + "act.npy")
+        ).float()
+        self.observations = th.from_numpy(
+            np.load(config["prepared_mlp_data_path"] + "obs.npy")
+        ).float()
 
     def __len__(self):
         return len(self.observations)
