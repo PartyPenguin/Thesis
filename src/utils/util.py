@@ -147,7 +147,7 @@ def compute_nullspace_proj(
     return nullspace_projection
 
 
-def evaluate_policy(env, policy, num_episodes=10, device="cuda"):
+def evaluate_policy(env, policy, num_episodes=10, device="cuda", render=False):
     """
     Evaluate the performance of a policy in a given environment.
 
@@ -182,6 +182,8 @@ def evaluate_policy(env, policy, num_episodes=10, device="cuda"):
         with th.no_grad():
             action = policy(graph).squeeze().detach().cpu().numpy()
         obs, reward, terminated, truncated, info = env.step(action)
+        if render:
+            env.render()
         obs_list.append(obs)
         if terminated or truncated:
             successes.append(info["success"])

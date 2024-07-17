@@ -74,7 +74,7 @@ def main():
 
     from src.utils.util import evaluate_policy
 
-    success_rate = evaluate_policy(env, policy, num_episodes=100)
+    success_rate = evaluate_policy(env, policy, num_episodes=100, render=True)
 
     print("Success rate", success_rate)
 
