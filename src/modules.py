@@ -146,7 +146,7 @@ class GATPolicy(nn.Module):
         x = global_mean_pool(x, batch)
 
         # Apply the linear layer
-        # x = self.lin(x)
+        x = self.lin(x)
         # Apply the tanh activation function because the actions are in the range [-1, 1]
         x = th.tanh(x)
 
