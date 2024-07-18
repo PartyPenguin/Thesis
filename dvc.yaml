@@ -27,7 +27,7 @@ stages:
     - params.yaml
     - data/prepared/graph/PickCube/act.npy
     - data/prepared/graph/PickCube/obs.npy
-    - data/prepared/graph/PickCube/episode_map.npyx
+    - data/prepared/graph/PickCube/episode_map.npy
     params:
     - train.num_steps
     - train.batch_size
