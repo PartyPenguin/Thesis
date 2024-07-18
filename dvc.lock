@@ -65,32 +65,32 @@ stages:
       size: 73559050
     - path: params.yaml
       hash: md5
-      md5: 63c94ce8d0b8b6b6ceb2586c6e626553
-      size: 682
+      md5: a49be882c9085185b92d4caff75c9fd2
+      size: 740
     - path: src/prepare.py
       hash: md5
-      md5: 9314252db46fb57afd40953d95cbd4ba
-      size: 5597
+      md5: 982dd2d89aa2730c3f955045864489f0
+      size: 5969
     params:
       params.yaml:
-        data_file: trajectory.state.pd_joint_delta_pos.h5
+        data_file: trajectory.state.pd_ee_delta_pose.h5
         prepare.load_count: -1
         prepare.transformations: []
-        prepared_data_path: data/prepared/PickCube/
+        prepared_graph_data_path: data/prepared/graph/PickCube/
         raw_data_path: data/raw/PickCube/
     outs:
-    - path: data/prepared/PickCube/act.npy
+    - path: data/prepared/graph/PickCube/act.npy
       hash: md5
-      md5: 29b7679763534b4aa8c7a2cc81dce84b
-      size: 3142080
-    - path: data/prepared/PickCube/episode_map.npy
+      md5: d0a20401a8357ecf36909d611ccc5824
+      size: 2751940
+    - path: data/prepared/graph/PickCube/episode_map.npy
       hash: md5
-      md5: fd18f2ed4f9b34623ab380ebd8fc57df
-      size: 785616
-    - path: data/prepared/PickCube/obs.npy
+      md5: 9f815fda91ecdc965471ad5760754f57
+      size: 786360
+    - path: data/prepared/graph/PickCube/obs.npy
       hash: md5
-      md5: 49ddda734d02419557743d4488c3a1cd
-      size: 263924096
+      md5: 7f04a3e74092cd55ad1a252a675648f2
+      size: 264174080
   evaluate:
     cmd: python src/evaluate.py
     deps:
