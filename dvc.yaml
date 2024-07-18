@@ -6,6 +6,7 @@ stages:
     - src/prepare.py
     - params.yaml
     - data/raw/PickCube/trajectory.state.pd_ee_delta_pose.h5
+    - data/raw/PickCube/trajectory.state.pd_ee_delta_pose.json
     params:
     - prepare.load_count
     - prepare.transformations
@@ -26,7 +27,7 @@ stages:
     - params.yaml
     - data/prepared/graph/PickCube/act.npy
     - data/prepared/graph/PickCube/obs.npy
-    - data/prepared/graph/PickCube/episode_map.npy
+    - data/prepared/graph/PickCube/episode_map.npyx
     params:
     - train.num_steps
     - train.batch_size
