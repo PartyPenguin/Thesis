@@ -14,6 +14,7 @@ from torch_geometric.data import Batch
 from src.prepare import base_transform_obs, apply_transformations, TRANSFORMATIONS
 import pytorch_kinematics as pk
 from typing import Tuple
+import yaml
 
 # Load config from params.yaml
 with open("params.yaml", "r") as f:
