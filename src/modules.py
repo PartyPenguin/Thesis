@@ -108,21 +108,17 @@ class GATPolicy(nn.Module):
         hidden_dim = config["train"]["model_params"]["hidden_dim"]
         dropout = config["train"]["model_params"]["dropout"]
         # Define the GAT layers
-        self.gat_conv1 = GATConv(
-            obs_dims, hidden_dim, heads=num_heads, edge_dim=-1, dropout=dropout
-        )
+        self.gat_conv1 = GATConv(obs_dims, hidden_dim, heads=num_heads, dropout=dropout)
         self.gat_conv2 = GATConv(
             hidden_dim * num_heads,
             hidden_dim,
             heads=num_heads,
-            edge_dim=-1,
             dropout=dropout,
         )
         self.gat_conv3 = GATConv(
             hidden_dim * num_heads,
             hidden_dim,
             heads=num_heads,
-            edge_dim=-1,
             dropout=dropout,
         )
 
@@ -138,9 +134,9 @@ class GATPolicy(nn.Module):
         )
 
         # Apply the GAT layers
-        x = self.gat_conv1(x, edge_index, edge_attr).relu()
-        x = self.gat_conv2(x, edge_index, edge_attr).relu()
-        x = self.gat_conv3(x, edge_index, edge_attr).relu()
+        x = self.gat_conv1(x, edge_index).relu()
+        x = self.gat_conv2(x, edge_index).relu()
+        x = self.gat_conv3(x, edge_index).relu()
 
         # Apply global mean pooling
         x = global_mean_pool(x, batch)

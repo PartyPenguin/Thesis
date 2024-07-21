@@ -5,32 +5,32 @@ stages:
     deps:
     - path: data/prepared/graph/PickCube/act.npy
       hash: md5
-      md5: d0a20401a8357ecf36909d611ccc5824
-      size: 2751940
+      md5: 29b7679763534b4aa8c7a2cc81dce84b
+      size: 3142080
     - path: data/prepared/graph/PickCube/episode_map.npy
       hash: md5
-      md5: 9f815fda91ecdc965471ad5760754f57
-      size: 786360
+      md5: fd18f2ed4f9b34623ab380ebd8fc57df
+      size: 785616
     - path: data/prepared/graph/PickCube/obs.npy
       hash: md5
-      md5: 7f04a3e74092cd55ad1a252a675648f2
-      size: 264174080
+      md5: 571e54d25ba47c1a90512cab4f6cb255
+      size: 263924096
     - path: params.yaml
       hash: md5
-      md5: a49be882c9085185b92d4caff75c9fd2
-      size: 740
+      md5: 0bc646bbfc5e95da9fc9860d47f4d97d
+      size: 779
     - path: src/modules.py
       hash: md5
       md5: 7ff5868acf33b9d81239afe710706790
       size: 8116
     - path: src/train.py
       hash: md5
-      md5: 9769358c6528743f5ed15e9e6ac898f7
-      size: 6245
+      md5: 63fe26140b8fda39ee02627e24af2120
+      size: 6271
     - path: src/utils/util.py
       hash: md5
-      md5: ac43de1c2c4405d2fc2cc21b17271365
-      size: 6447
+      md5: 6a7579bdca4b52e3daf1016fa2aaa6f7
+      size: 6662
     params:
       params.yaml:
         train.batch_size: 64
@@ -38,24 +38,24 @@ stages:
         train.lr: 0.001
         train.model: GAT
         train.model_params:
-          num_heads: 4
-          hidden_dim: 128
+          num_heads: 2
+          hidden_dim: 256
           dropout: 0.5
         train.num_steps: 100000
         train.seed: 42
     outs:
     - path: logs/output/checkpoints/ckpt_best.pt
       hash: md5
-      md5: 913020d5c691db674afadfa6239c11a5
-      size: 2258634
+      md5: 7551414e067084fe058b20d91f164465
+      size: 2260682
     - path: logs/output/plots/current_success_rate.json
       hash: md5
-      md5: ba0cc87331966a3e26fcd8b868b98707
+      md5: ee4683df961184d90e7f73f4e270e674
       size: 142
     - path: logs/output/plots/epoch_loss.json
       hash: md5
-      md5: c64c0e399e80ee73543db993e2e5923d
-      size: 893
+      md5: 395b524e8a6cd77cb421d0a60cdb9bdd
+      size: 892
   prepare:
     cmd: python src/prepare.py
     deps:
@@ -101,26 +101,26 @@ stages:
     deps:
     - path: logs/output/checkpoints/ckpt_best.pt
       hash: md5
-      md5: 262735e6c40e69f1d317fc6bf77c92bd
-      size: 621258
+      md5: 7551414e067084fe058b20d91f164465
+      size: 2260682
     - path: params.yaml
       hash: md5
-      md5: 63c94ce8d0b8b6b6ceb2586c6e626553
-      size: 682
+      md5: 0bc646bbfc5e95da9fc9860d47f4d97d
+      size: 779
     - path: src/evaluate.py
       hash: md5
-      md5: 15136e1da664c6dbe05191a4df3077a9
-      size: 2593
+      md5: c47054cac173473e903ac1df3e46eebc
+      size: 2609
     - path: src/modules.py
       hash: md5
-      md5: 5b0085e2bf823821c7592599f1221c19
-      size: 8172
+      md5: 7ff5868acf33b9d81239afe710706790
+      size: 8116
     - path: src/utils/util.py
       hash: md5
-      md5: e76dadf69feeeb0e961fdc53172ee15c
-      size: 5923
+      md5: 6a7579bdca4b52e3daf1016fa2aaa6f7
+      size: 6662
     outs:
     - path: logs/output/eval/success_rate.json
       hash: md5
-      md5: 3a61eef975855a15d60e0749d59e819e
+      md5: fac4b9e50b714b7c93e4eea854b76c41
       size: 22
