@@ -15,8 +15,13 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
+import yaml
 
-WINDOW_SIZE = 4
+# Load config from params.yaml
+with open("params.yaml", "r") as f:
+    config = yaml.safe_load(f)
+
+WINDOW_SIZE = config["window_size"]
 
 
 def load_h5_data(data):

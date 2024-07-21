@@ -24,7 +24,13 @@ def load_h5_data(data):
     return out
 
 
-def standardize(data: np.ndarray, scaler: StandardScaler = None) -> np.ndarray:
+def standardize(data: np.ndarray) -> np.ndarray:
+    # Try to load the standard scaler from the disk
+    try:
+        scaler = joblib.load("standard_scaler.pkl")
+    except FileNotFoundError:
+        scaler = None
+
     if scaler is None:
         scaler = StandardScaler()
         data = scaler.fit_transform(data)

@@ -7,7 +7,6 @@ from mani_skill2.utils.wrappers import RecordEpisode
 from mani_skill2.envs.sapien_env import BaseEnv
 from collections import deque
 from src.prepare import base_transform_obs
-from src.train import WINDOW_SIZE
 from src.dataset import create_graph
 import json
 from torch_geometric.data import Batch
@@ -18,6 +17,8 @@ from pathlib import Path
 # Load config from params.yaml
 with open("params.yaml", "r") as f:
     config = yaml.safe_load(f)
+
+WINDOW_SIZE = config["window_size"]
 
 
 def initialize_environment() -> BaseEnv:

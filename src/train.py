@@ -39,7 +39,9 @@ with open("params.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 DOF = 8  # 8 degrees of freedom for the robot
-WINDOW_SIZE = 4  # Number of observations to use for each training step
+WINDOW_SIZE = config[
+    "window_size"
+]  # Number of observations to use for each training step
 DEFAULT_Q_POS = (
     th.tensor(
         [0.0, -np.pi / 4, 0, -np.pi * 3 / 4, 0, np.pi * 2 / 4, np.pi / 4, 0.04, 0.04]
