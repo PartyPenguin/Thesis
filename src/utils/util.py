@@ -11,9 +11,13 @@ from src.dataset import create_graph
 from src.dataset import WINDOW_SIZE
 from mani_skill2.envs.sapien_env import BaseEnv
 from torch_geometric.data import Batch
-from src.prepare import base_transform_obs
+from src.prepare import base_transform_obs, apply_transformations, TRANSFORMATIONS
 import pytorch_kinematics as pk
 from typing import Tuple
+
+# Load config from params.yaml
+with open("params.yaml", "r") as f:
+    config = yaml.safe_load(f)
 
 
 def load_data(env, config):
@@ -171,6 +175,7 @@ def evaluate_policy(env, policy, num_episodes=10, device="cuda", render=False):
     pbar = tqdm(total=num_episodes, leave=False)
     while i < num_episodes:
         obs, shape = base_transform_obs(np.array(obs_list), env=env)
+        obs = apply_transformations(obs, config).reshape(shape)
         obs = th.tensor(obs, device=device).float().reshape(shape).unsqueeze(0)
         # create batched graph
         graph_list = (
