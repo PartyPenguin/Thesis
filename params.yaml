@@ -25,7 +25,7 @@ train:
   log_dir: logs/output
   plot_dir: logs/output/plots
   env_id: PickCube-v0
-  iterations: 100
+  iterations: 30000
   eval: false
   model: GAT
   model_params:

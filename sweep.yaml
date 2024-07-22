@@ -8,11 +8,12 @@ parameters:
   train.batch_size:
       values: [64, 128, 256]
   train.lr:
-      values: [0.001, 0.0001]
+      min: 0.0001
+      max: 0.001
   train.model_params.num_heads:
       values: [2, 4, 8]
   train.model_params.hidden_dim:
-      values: [32, 512]
+      values: [32,64,128, 512]
   train.model_params.dropout:
-      values: [0.25, 0.7]
+      values: [0.25,0.5, 0.7]
   
