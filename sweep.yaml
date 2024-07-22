@@ -1,0 +1,18 @@
+program: src/main.py
+name: GAT hyperparameter search 
+method: random
+metric:
+  name: success_rate
+  goal: maximize
+parameters:
+  train.batch_size:
+      values: [64, 128, 256]
+  train.lr:
+      values: [0.001, 0.0001]
+  train.model_params.num_heads:
+      values: [2, 4, 8]
+  train.model_params.hidden_dim:
+      values: [32, 512]
+  train.model_params.dropout:
+      values: [0.25, 0.7]
+  

@@ -1,0 +1,12 @@
+wandb_version: 1
+
+train.batch_size:
+  value: 64
+train.lr:
+  value: 0.001
+train.model_params.dropout:
+  value: 0.7
+train.model_params.hidden_dim:
+  value: 32
+train.model_params.num_heads:
+  value: 4

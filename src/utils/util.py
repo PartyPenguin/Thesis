@@ -8,7 +8,6 @@ from tqdm import tqdm
 from collections import deque
 from src.dataset import transform_obs
 from src.dataset import create_graph
-from src.dataset import WINDOW_SIZE
 from mani_skill2.envs.sapien_env import BaseEnv
 from torch_geometric.data import Batch
 from src.prepare import base_transform_obs, apply_transformations, TRANSFORMATIONS
@@ -16,12 +15,8 @@ import pytorch_kinematics as pk
 from typing import Tuple
 import yaml
 
-# Load config from params.yaml
-with open("params.yaml", "r") as f:
-    config = yaml.safe_load(f)
 
-
-def load_data(env, config):
+def load_data(env: BaseEnv, config: dict):
     """
     Load data from a given path and create a data loader.
 
@@ -152,7 +147,9 @@ def compute_nullspace_proj(
     return nullspace_projection
 
 
-def evaluate_policy(env, policy, num_episodes=10, device="cuda", render=False):
+def evaluate_policy(
+    env, policy, config: dict, num_episodes=10, device="cuda", render=False
+):
     """
     Evaluate the performance of a policy in a given environment.
 
@@ -165,10 +162,9 @@ def evaluate_policy(env, policy, num_episodes=10, device="cuda", render=False):
     Returns:
         float: The success rate of the policy, defined as the proportion of successful episodes.
     """
-    pinocchio_model = env.unwrapped.agent.robot.create_pinocchio_model()
-    obs_list = deque(maxlen=WINDOW_SIZE)
+    obs_list = deque(maxlen=config["prepare"]["window_size"])
     # Fill obs_list with zeros
-    for _ in range(WINDOW_SIZE):
+    for _ in range(config["prepare"]["window_size"]):
         obs_list.append(np.zeros_like(env.reset()[0]))
     obs_list.append(env.reset()[0])
     successes = []

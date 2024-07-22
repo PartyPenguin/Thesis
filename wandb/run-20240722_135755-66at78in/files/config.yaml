@@ -1,0 +1,82 @@
+wandb_version: 1
+
+env:
+  desc: null
+  value:
+    env_id: PickCube-v0
+    obs_mode: state
+    control_mode: pd_joint_delta_pos
+    render_mode: cameras
+prepare:
+  desc: null
+  value:
+    window_size: 4
+    load_count: -1
+    transformations:
+    - type: standardize
+    raw_data_path: data/raw/PickCube/
+    prepared_graph_data_path: data/prepared/graph/PickCube/
+    prepared_mlp_data_path: data/prepared/mlp/PickCube/
+    data_file: trajectory.state.pd_joint_delta_pos.h5
+train:
+  desc: null
+  value:
+    obs_mode: state
+    control_mode: pd_joint_delta_pos
+    render_mode: cameras
+    num_steps: 100000
+    batch_size: 64
+    num_workers: 4
+    lr: 0.001
+    seed: 42
+    log_dir: logs/output
+    plot_dir: logs/output/plots
+    env_id: PickCube-v0
+    iterations: 30000
+    eval: false
+    model: GAT
+    model_params:
+      num_heads: 2
+      hidden_dim: 256
+      dropout: 0.5
+evaluate:
+  desc: null
+  value:
+    render: true
+    render_mode: human
+_wandb:
+  desc: null
+  value:
+    python_version: 3.10.12
+    cli_version: 0.17.5
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1721649475
+    t:
+      1:
+      - 1
+      - 5
+      - 53
+      - 55
+      - 77
+      - 105
+      2:
+      - 1
+      - 5
+      - 53
+      - 55
+      - 77
+      - 105
+      3:
+      - 1
+      - 2
+      - 3
+      - 16
+      - 23
+      - 61
+      4: 3.10.12
+      5: 0.17.5
+      8:
+      - 5
+      13: linux-x86_64

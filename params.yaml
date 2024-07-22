@@ -1,18 +1,18 @@
 # params.yaml
-env_id: PickCube-v0
-obs_mode: state
-control_mode: pd_joint_delta_pos
-render_mode: cameras
-raw_data_path: data/raw/PickCube/
-prepared_graph_data_path: data/prepared/graph/PickCube/
-prepared_mlp_data_path: data/prepared/mlp/PickCube/
-data_file: trajectory.state.pd_joint_delta_pos.h5
-window_size: 4
+env:
+  env_id: PickCube-v0
+  obs_mode: state
+  control_mode: pd_joint_delta_pos
+  render_mode: cameras
 
 prepare:
+  window_size: 4
   load_count: -1
-  transformations:
-  - type: standardize
+  transformations: []
+  raw_data_path: data/raw/PickCube/
+  prepared_graph_data_path: data/prepared/graph/PickCube/
+  prepared_mlp_data_path: data/prepared/mlp/PickCube/
+  data_file: trajectory.state.pd_joint_delta_pos.h5
 train:
   obs_mode: state
   control_mode: pd_joint_delta_pos
@@ -25,7 +25,7 @@ train:
   log_dir: logs/output
   plot_dir: logs/output/plots
   env_id: PickCube-v0
-  iterations: 30000
+  iterations: 100
   eval: false
   model: GAT
   model_params:

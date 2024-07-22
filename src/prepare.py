@@ -66,8 +66,8 @@ TRANSFORMATIONS = {
 }
 
 
-def load_raw_data(config):
-    dataset_file = config["raw_data_path"] + config["data_file"]
+def load_raw_data(config: dict):
+    dataset_file = config["prepare"]["raw_data_path"] + config["prepare"]["data_file"]
     data = h5py.File(dataset_file, "r")
     json_path = dataset_file.replace(".h5", ".json")
     json_data = load_json(json_path)
@@ -149,7 +149,7 @@ def base_transform_obs(obs, env):
     return combined_features, original_shape
 
 
-def apply_transformations(array, config):
+def apply_transformations(array, config: dict):
     for transformation in config["prepare"]["transformations"]:
         t_type = transformation["type"]
         transform_func = TRANSFORMATIONS[t_type]
@@ -157,12 +157,12 @@ def apply_transformations(array, config):
     return array
 
 
-def prepare(config):
+def prepare(config: dict):
     env: BaseEnv = gym.make(
-        id=config["env_id"],
-        obs_mode=config["obs_mode"],
-        control_mode=config["control_mode"],
-        render_mode=config["render_mode"],
+        id=config["env"]["env_id"],
+        obs_mode=config["env"]["obs_mode"],
+        control_mode=config["env"]["control_mode"],
+        render_mode=config["env"]["render_mode"],
     )
     obs, act, episode_map = load_raw_data(config)
 
@@ -171,18 +171,25 @@ def prepare(config):
         obs = apply_transformations(obs, config).reshape(obs_shape)
 
         # Create a directory to save the prepared data
-        Path(config["prepared_graph_data_path"]).mkdir(parents=True, exist_ok=True)
+        Path(config["prepare"]["prepared_graph_data_path"]).mkdir(
+            parents=True, exist_ok=True
+        )
 
-        np.save(config["prepared_graph_data_path"] + "obs.npy", obs)
-        np.save(config["prepared_graph_data_path"] + "act.npy", act)
-        np.save(config["prepared_graph_data_path"] + "episode_map.npy", episode_map)
+        np.save(config["prepare"]["prepared_graph_data_path"] + "obs.npy", obs)
+        np.save(config["prepare"]["prepared_graph_data_path"] + "act.npy", act)
+        np.save(
+            config["prepare"]["prepared_graph_data_path"] + "episode_map.npy",
+            episode_map,
+        )
 
     else:
         obs = apply_transformations(obs, config)
-        Path(config["prepared_mlp_data_path"]).mkdir(parents=True, exist_ok=True)
+        Path(config["prepare"]["prepared_mlp_data_path"]).mkdir(
+            parents=True, exist_ok=True
+        )
 
-        np.save(config["prepared_mlp_data_path"] + "obs.npy", obs)
-        np.save(config["prepared_mlp_data_path"] + "act.npy", act)
+        np.save(config["prepare"]["prepared_mlp_data_path"] + "obs.npy", obs)
+        np.save(config["prepare"]["prepared_mlp_data_path"] + "act.npy", act)
 
 
 with open("params.yaml", "r") as f:

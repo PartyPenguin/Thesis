@@ -17,12 +17,6 @@ import seaborn as sns
 import joblib
 import yaml
 
-# Load config from params.yaml
-with open("params.yaml", "r") as f:
-    config = yaml.safe_load(f)
-
-WINDOW_SIZE = config["window_size"]
-
 
 def load_h5_data(data):
     out = dict()
@@ -459,11 +453,16 @@ class GeometricManiSkill2Dataset(GeometricDataset):
         transform=None,
         pre_transform=None,
     ):
+        self.window_size = config["prepare"]["window_size"]
         super(GeometricManiSkill2Dataset, self).__init__(root, transform, pre_transform)
-        self.actions = np.load(config["prepared_graph_data_path"] + "act.npy")
-        self.observations = np.load(config["prepared_graph_data_path"] + "obs.npy")
+        self.actions = np.load(
+            config["prepare"]["prepared_graph_data_path"] + "act.npy"
+        )
+        self.observations = np.load(
+            config["prepare"]["prepared_graph_data_path"] + "obs.npy"
+        )
         self.episode_map = np.load(
-            config["prepared_graph_data_path"] + "episode_map.npy"
+            config["prepare"]["prepared_graph_data_path"] + "episode_map.npy"
         )
 
     def len(self):
@@ -481,7 +480,7 @@ class GeometricManiSkill2Dataset(GeometricDataset):
         # The observations must be from the same episode.
 
         # Create the window of episode numbers
-        episode_window = self.episode_map[max(0, idx - WINDOW_SIZE + 1) : idx + 1]
+        episode_window = self.episode_map[max(0, idx - self.window_size + 1) : idx + 1]
 
         # Create a mask where the episode number matches the current episode
         mask = episode_window == episode
@@ -489,15 +488,17 @@ class GeometricManiSkill2Dataset(GeometricDataset):
         # Use the mask to select the corresponding observations and convert them to a PyTorch tensor
 
         obs = th.from_numpy(
-            self.observations[max(0, idx - WINDOW_SIZE + 1) : idx + 1][mask]
+            self.observations[max(0, idx - self.window_size + 1) : idx + 1][mask]
         ).float()
 
         # If the observation tensor is shorter than window_size (because we're at the start of an episode),
         # pad it with zeros at the beginning.
-        if obs.shape[0] < WINDOW_SIZE:
+        if obs.shape[0] < self.window_size:
             obs = th.cat(
                 [
-                    th.zeros(WINDOW_SIZE - obs.shape[0], obs.shape[1], obs.shape[2]),
+                    th.zeros(
+                        self.window_size - obs.shape[0], obs.shape[1], obs.shape[2]
+                    ),
                     obs,
                 ],
                 dim=0,
