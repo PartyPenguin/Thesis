@@ -2,7 +2,7 @@ program: src/main.py
 name: GAT hyperparameter search 
 method: random
 metric:
-  name: success_rate
+  name: final_success_rate
   goal: maximize
 parameters:
   train.batch_size:

@@ -160,5 +160,5 @@ def train(config: dict):
             wandb.log({"success_rate": success_rate}, step=steps)
 
         epoch += 1
-
-        save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pt"))
+    wandb.unwatch()
+    save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pt"))
