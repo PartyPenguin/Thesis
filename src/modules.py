@@ -104,6 +104,8 @@ class GraphSAGEPolicy(nn.Module):
 class GATPolicy(nn.Module):
     def __init__(self, obs_dims, act_dims):
         super().__init__()
+        self.obs_dims = obs_dims
+        self.act_dims = act_dims
         num_heads = config["train"]["model_params"]["num_heads"]
         hidden_dim = config["train"]["model_params"]["hidden_dim"]
         dropout = config["train"]["model_params"]["dropout"]

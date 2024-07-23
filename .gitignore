@@ -138,3 +138,5 @@ trajectories*.h5
 trajectories*.json
 
 logs/
+
+wandb/

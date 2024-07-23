@@ -162,11 +162,12 @@ def evaluate_policy(
     Returns:
         float: The success rate of the policy, defined as the proportion of successful episodes.
     """
+    policy.eval()
     obs_list = deque(maxlen=config["prepare"]["window_size"])
     # Fill obs_list with zeros
     for _ in range(config["prepare"]["window_size"]):
         obs_list.append(np.zeros_like(env.reset()[0]))
-    obs_list.append(env.reset()[0])
+    obs_list.append(env.reset(seed=20)[0])
     successes = []
     i = 0
     pbar = tqdm(total=num_episodes, leave=False)

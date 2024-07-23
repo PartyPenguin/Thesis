@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import os
 import wandb
+from src.train import GATPolicy
 
 device = "cuda" if th.cuda.is_available() else "cpu"
 
@@ -25,13 +26,18 @@ def load_model(model_path: str, device: str) -> th.nn.Module:
 
 
 def evaluate(config: dict):
-    model_path = os.path.join(config["train"]["log_dir"], "checkpoints/ckpt_best.pt")
+    model_path = os.path.join(config["train"]["log_dir"], "checkpoints/ckpt_best.pth")
 
     env = initialize_environment(config)
     print("Observation space", env.observation_space)
     print("Action space", env.action_space)
 
-    policy = load_model(model_path, device)
+    checkpoint = th.load(model_path)
+    obs_dim = checkpoint["input_dim"]
+    act_dim = checkpoint["output_dim"]
+
+    policy = GATPolicy(obs_dim, act_dim).to(device)
+    policy.load_state_dict(checkpoint["model_state_dict"])
 
     from src.utils.util import evaluate_policy
 

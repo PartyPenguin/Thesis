@@ -48,8 +48,13 @@ def set_seed(seed):
     np.random.seed(seed)
 
 
-def save_model(policy, path):
-    th.save(policy, path)
+def save_model(policy: GATPolicy, path: str):
+    checkpoint = {
+        "model_state_dict": policy.state_dict(),
+        "input_dim": policy.obs_dims,
+        "output_dim": policy.act_dims,
+    }
+    th.save(checkpoint, path)
 
 
 def train_step(policy, data, optim, loss_fn, env, device):
@@ -142,8 +147,7 @@ def train(config: dict):
             pbar.update(1)
 
             if steps % 2000 == 0:
-                wandb.unwatch()
-                save_model(policy, osp.join(ckpt_dir, f"ckpt_{steps}.pt"))
+                save_model(policy, osp.join(ckpt_dir, f"ckpt_{steps}.pth"))
             if steps >= config["train"]["iterations"]:
                 break
 
@@ -151,14 +155,12 @@ def train(config: dict):
         wandb.log({"epoch_loss": epoch_loss}, step=steps)
         if epoch_loss < best_epoch_loss:
             best_epoch_loss = epoch_loss
-            wandb.unwatch()
-            save_model(policy, osp.join(ckpt_dir, "ckpt_best.pt"))
-            wandb.save(osp.join(ckpt_dir, "ckpt_best.pt"))
+            save_model(policy, osp.join(ckpt_dir, "ckpt_best.pth"))
+            wandb.save(osp.join(ckpt_dir, "ckpt_best.pth"))
 
         if epoch % 5 == 0:
             success_rate = evaluate_policy(env, policy, config)
             wandb.log({"success_rate": success_rate}, step=steps)
 
         epoch += 1
-    wandb.unwatch()
-    save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pt"))
+    save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pth"))
