@@ -26,7 +26,10 @@ def load_model(model_path: str, device: str) -> th.nn.Module:
 
 
 def evaluate(config: dict):
-    model_path = os.path.join(config["train"]["log_dir"], "checkpoints/ckpt_best.pth")
+    model_path = os.path.join(
+        os.path.join(config["train"]["log_dir"], wandb.run.name),
+        "checkpoints/ckpt_best.pth",
+    )
 
     env = initialize_environment(config)
     print("Observation space", env.observation_space)
@@ -41,7 +44,9 @@ def evaluate(config: dict):
 
     from src.utils.util import evaluate_policy
 
-    success_rate = evaluate_policy(env, policy, config, num_episodes=100, render=True)
+    success_rate = evaluate_policy(
+        env, policy, config, num_episodes=100, render=config["evaluate"]["render"]
+    )
 
     print("Success rate", success_rate)
     wandb.log({"final_success_rate": success_rate})

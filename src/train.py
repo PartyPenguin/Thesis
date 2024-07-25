@@ -108,7 +108,9 @@ def train(config: dict):
     if config["train"]["seed"] is not None:
         set_seed(config["train"]["seed"])
 
-    ckpt_dir = osp.join(config["train"]["log_dir"], "checkpoints")
+    ckpt_dir = osp.join(
+        osp.join(config["train"]["log_dir"], wandb.run.name), "checkpoints"
+    )
     Path(ckpt_dir).mkdir(parents=True, exist_ok=True)
 
     env: BaseEnv = gym.make(
@@ -132,8 +134,11 @@ def train(config: dict):
     pbar = tqdm(dataloader, total=config["train"]["iterations"], leave=False)
     env = RecordEpisode(
         env,
-        output_dir=osp.join(config["train"]["log_dir"], "videos"),
-        info_on_video=True,
+        output_dir=osp.join(
+            osp.join(config["train"]["log_dir"], wandb.run.name), "videos"
+        ),
+        info_on_video=False,
+        save_trajectory=False,
     )
 
     while steps < config["train"]["iterations"]:

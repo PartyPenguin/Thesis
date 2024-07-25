@@ -6,7 +6,7 @@ env:
   render_mode: cameras
 
 prepare:
-  window_size: 4
+  window_size: 2
   load_count: -1
   transformations: []
   raw_data_path: data/raw/PickCube/
@@ -17,22 +17,22 @@ train:
   obs_mode: state
   control_mode: pd_joint_delta_pos
   render_mode: cameras
-  batch_size: 64
+  batch_size: 128
   num_workers: 4
   lr: 0.001
   seed: 42
   log_dir: logs/output
   plot_dir: logs/output/plots
   env_id: PickCube-v0
-  iterations: 30000
+  iterations: 300
   eval: false
   model: GAT
   model_params:
     num_heads: 2
-    hidden_dim: 256
+    hidden_dim: 128
     dropout: 0.5
 
 
 evaluate:
-  render: true
+  render: false
   render_mode: human
