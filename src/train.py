@@ -21,13 +21,8 @@ from scipy.spatial.transform import Rotation as R
 import mani_skill2.envs
 from mani_skill2.envs.sapien_env import BaseEnv
 from mani_skill2.utils.wrappers import RecordEpisode
-from src.modules import GATPolicy, GraphSAGEPolicy
-from src.utils.util import (
-    load_data,
-    compute_nullspace_proj,
-    evaluate_policy,
-    compute_fk,
-)
+from src.modules import GATPolicy
+from src.utils.util import load_data, evaluate_policy
 
 # Torch geometric imports
 from torch_geometric.data import Batch
@@ -69,10 +64,10 @@ def train_step(policy, data, optim, loss_fn, env, device):
 
     pred_actions = policy(graph)
 
-    q_pos = obs[:, -1, :, 0]
-    q_pos = q_pos.float()
+    # q_pos = obs[:, -1, :, 0]
+    # q_pos = q_pos.float()
 
-    base_pose = obs[:, -1, 0, 9:16]
+    # base_pose = obs[:, -1, 0, 9:16]
 
     # nullspace_proj = compute_nullspace_proj(
     #     q_pos, pred_actions, env=env, device=device
@@ -119,11 +114,12 @@ def train(config: dict):
         control_mode=config["env"]["control_mode"],
         render_mode=config["env"]["render_mode"],
     )
+    env.reset(config["train"]["seed"])
 
     dataloader, dataset = load_data(env=env, config=config)
-    tmp_graph, obs, actions = dataset[0]
-    tmp_graph = Batch.from_data_list([tmp_graph])
+    _, obs, actions = dataset[0]
     policy = GATPolicy(obs.shape[2], actions.shape[0]).to(device)
+    print(policy)
 
     loss_fn = nn.MSELoss()
 
@@ -155,7 +151,6 @@ def train(config: dict):
                 save_model(policy, osp.join(ckpt_dir, f"ckpt_{steps}.pth"))
             if steps >= config["train"]["iterations"]:
                 break
-
         epoch_loss = epoch_loss / len(dataloader)
         wandb.log({"epoch_loss": epoch_loss}, step=steps)
         if epoch_loss < best_epoch_loss:
@@ -165,7 +160,8 @@ def train(config: dict):
 
         if epoch % 5 == 0:
             success_rate = evaluate_policy(env, policy, config)
+            print("Success rate", success_rate)
             wandb.log({"success_rate": success_rate}, step=steps)
 
-        epoch += 1
+            epoch += 1
     save_model(policy, osp.join(ckpt_dir, "ckpt_latest.pth"))

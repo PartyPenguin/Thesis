@@ -166,30 +166,20 @@ def prepare(config: dict):
     )
     obs, act, episode_map = load_raw_data(config)
 
-    if config["train"]["model"] != "MLP":
-        obs, obs_shape = base_transform_obs(obs, env)
-        obs = apply_transformations(obs, config).reshape(obs_shape)
+    obs, obs_shape = base_transform_obs(obs, env)
+    obs = apply_transformations(obs, config).reshape(obs_shape)
 
-        # Create a directory to save the prepared data
-        Path(config["prepare"]["prepared_graph_data_path"]).mkdir(
-            parents=True, exist_ok=True
-        )
+    # Create a directory to save the prepared data
+    Path(config["prepare"]["prepared_graph_data_path"]).mkdir(
+        parents=True, exist_ok=True
+    )
 
-        np.save(config["prepare"]["prepared_graph_data_path"] + "obs.npy", obs)
-        np.save(config["prepare"]["prepared_graph_data_path"] + "act.npy", act)
-        np.save(
-            config["prepare"]["prepared_graph_data_path"] + "episode_map.npy",
-            episode_map,
-        )
-
-    else:
-        obs = apply_transformations(obs, config)
-        Path(config["prepare"]["prepared_mlp_data_path"]).mkdir(
-            parents=True, exist_ok=True
-        )
-
-        np.save(config["prepare"]["prepared_mlp_data_path"] + "obs.npy", obs)
-        np.save(config["prepare"]["prepared_mlp_data_path"] + "act.npy", act)
+    np.save(config["prepare"]["prepared_graph_data_path"] + "obs.npy", obs)
+    np.save(config["prepare"]["prepared_graph_data_path"] + "act.npy", act)
+    np.save(
+        config["prepare"]["prepared_graph_data_path"] + "episode_map.npy",
+        episode_map,
+    )
 
 
 with open("params.yaml", "r") as f:

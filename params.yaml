@@ -4,32 +4,34 @@ env:
   obs_mode: state
   control_mode: pd_joint_delta_pos
   render_mode: cameras
+  seed: 42
 
 prepare:
-  window_size: 2
+  window_size: 4
   load_count: -1
   transformations: []
   raw_data_path: data/raw/PickCube/
   prepared_graph_data_path: data/prepared/graph/PickCube/
   prepared_mlp_data_path: data/prepared/mlp/PickCube/
   data_file: trajectory.state.pd_joint_delta_pos.h5
+
 train:
+  seed: 25
   obs_mode: state
   control_mode: pd_joint_delta_pos
   render_mode: cameras
-  batch_size: 128
+  batch_size: 64
   num_workers: 4
   lr: 0.001
-  seed: 42
   log_dir: logs/output
   plot_dir: logs/output/plots
   env_id: PickCube-v0
-  iterations: 300
+  iterations: 30000
   eval: false
   model: GAT
   model_params:
-    num_heads: 2
-    hidden_dim: 128
+    num_heads: 4
+    hidden_dim: 256
     dropout: 0.5
 
 

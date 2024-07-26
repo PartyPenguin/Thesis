@@ -1,5 +1,0 @@
-outs:
-- md5: 0b6a33d91ceaabcff171ee6f0e99f2bd
-  size: 351527
-  hash: md5
-  path: trajectory.state.pd_ee_delta_pose.json

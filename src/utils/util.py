@@ -6,7 +6,6 @@ from sapien.core.pysapien import PinocchioModel
 import numpy as np
 from tqdm import tqdm
 from collections import deque
-from src.dataset import transform_obs
 from src.dataset import create_graph
 from mani_skill2.envs.sapien_env import BaseEnv
 from torch_geometric.data import Batch
@@ -162,18 +161,17 @@ def evaluate_policy(
     Returns:
         float: The success rate of the policy, defined as the proportion of successful episodes.
     """
-    policy.eval()
     obs_list = deque(maxlen=config["prepare"]["window_size"])
     # Fill obs_list with zeros
     for _ in range(config["prepare"]["window_size"]):
         obs_list.append(np.zeros_like(env.reset()[0]))
-    obs_list.append(env.reset(seed=20)[0])
+    obs_list.append(env.reset()[0])
     successes = []
     i = 0
     pbar = tqdm(total=num_episodes, leave=False)
     while i < num_episodes:
         obs, shape = base_transform_obs(np.array(obs_list), env=env)
-        obs = apply_transformations(obs, config).reshape(shape)
+        # obs = apply_transformations(obs, config).reshape(shape)
         obs = th.tensor(obs, device=device).float().reshape(shape).unsqueeze(0)
         # create batched graph
         graph_list = (
